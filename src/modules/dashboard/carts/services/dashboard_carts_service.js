@@ -304,5 +304,88 @@ module.exports = {
   getAllCartItems,
   getPendingCarts,
   getCartDetails,
-  confirmCartByCode
+  confirmCartByCode,
+  createCartAdmin: async (userId, status = 'active', items = []) => {
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+
+    const lastCart = await pool.query(
+      'SELECT cart_code FROM carts WHERE cart_code LIKE ? ORDER BY cart_id DESC LIMIT 1',
+      [`CART-${dateStr}-%`]
+    );
+
+    let sequence = 1;
+    if (lastCart.length > 0 && lastCart[0].cart_code) {
+      const lastNum = lastCart[0].cart_code.split('-')[2];
+      sequence = parseInt(lastNum) + 1;
+    }
+
+    const cartCode = `CART-${dateStr}-${String(sequence).padStart(5, '0')}`;
+
+    const result = await pool.query(
+      'INSERT INTO carts (user_id, cart_code, status) VALUES (?, ?, ?)',
+      [userId, cartCode, status]
+    );
+
+    const cartId = result.insertId;
+
+    for (const it of items) {
+      const qty = Math.max(1, parseInt(it.quantity) || 1);
+      await pool.query(
+        `INSERT INTO cart_items (cart_id, product_id, color_id, size_id, quantity) VALUES (?, ?, ?, ?, ?)`,
+        [cartId, it.product_id, it.color_id, it.size_id, qty]
+      );
+    }
+
+    return await getCartDetails(cartId);
+  },
+  updateCartAdmin: async (cartId, payload) => {
+    const updates = [];
+    const params = [];
+
+    if (payload.status) {
+      updates.push('status = ?');
+      params.push(payload.status);
+    }
+    if (payload.user_id) {
+      updates.push('user_id = ?');
+      params.push(payload.user_id);
+    }
+
+    if (updates.length) {
+      params.push(cartId);
+      await pool.query(`UPDATE carts SET ${updates.join(', ')} WHERE cart_id = ?`, params);
+    }
+
+    if (Array.isArray(payload.remove_item_ids) && payload.remove_item_ids.length) {
+      await pool.query(
+        `DELETE FROM cart_items WHERE cart_id = ? AND item_id IN (${payload.remove_item_ids.map(() => '?').join(',')})`,
+        [cartId, ...payload.remove_item_ids]
+      );
+    }
+
+    if (Array.isArray(payload.update_items)) {
+      for (const it of payload.update_items) {
+        if (!it.item_id) continue;
+        const qty = Math.max(1, parseInt(it.quantity) || 1);
+        await pool.query('UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND item_id = ?', [qty, cartId, it.item_id]);
+      }
+    }
+
+    if (Array.isArray(payload.add_items)) {
+      for (const it of payload.add_items) {
+        const qty = Math.max(1, parseInt(it.quantity) || 1);
+        await pool.query(
+          `INSERT INTO cart_items (cart_id, product_id, color_id, size_id, quantity) VALUES (?, ?, ?, ?, ?)`,
+          [cartId, it.product_id, it.color_id, it.size_id, qty]
+        );
+      }
+    }
+
+    return await getCartDetails(cartId);
+  },
+  deleteCartAdmin: async (cartId) => {
+    await pool.query('DELETE FROM carts WHERE cart_id = ?', [cartId]);
+    return true;
+  }
 };

@@ -60,8 +60,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/setup-admin",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "setup-admin"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "setup-admin"
+              ]
             },
             "description": "⚠️ يعمل مرة واحدة فقط عند عدم وجود Super Admin"
           }
@@ -101,8 +106,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "تسجيل دخول الموظفين فقط"
           }
@@ -137,8 +147,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/super-admin/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "super-admin", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "super-admin",
+                "login"
+              ]
             },
             "description": "تسجيل دخول Super Admin فقط"
           }
@@ -173,8 +189,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/customer-login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "customer-login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "customer-login"
+              ]
             }
           }
         },
@@ -190,8 +211,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/get-userinfo",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "get-userinfo"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "get-userinfo"
+              ]
             }
           }
         },
@@ -207,8 +233,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             }
           }
         }
@@ -224,8 +255,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
             }
           }
         },
@@ -236,11 +272,22 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/products?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
               ]
             }
           }
@@ -252,10 +299,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/products?search=فستان",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
               "query": [
-                { "key": "search", "value": "فستان" }
+                {
+                  "key": "search",
+                  "value": "فستان"
+                }
               ]
             }
           }
@@ -267,8 +322,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/products/category/women",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "category", "women"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "category",
+                "women"
+              ]
             }
           }
         },
@@ -279,8 +341,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/products/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "1"
+              ]
             }
           }
         }
@@ -309,8 +377,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cart/add",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cart", "add"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "add"
+              ]
             }
           }
         },
@@ -326,8 +400,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/cart",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cart"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
             }
           }
         },
@@ -351,8 +430,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cart/update/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cart", "update", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "update",
+                "1"
+              ]
             }
           }
         },
@@ -368,8 +454,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/cart/remove/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cart", "remove", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "remove",
+                "1"
+              ]
             }
           }
         }
@@ -390,8 +483,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts"
+              ]
             }
           }
         },
@@ -407,8 +506,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts", "items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "items"
+              ]
             }
           }
         },
@@ -424,8 +530,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts", "pending"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "pending"
+              ]
             }
           }
         },
@@ -441,8 +554,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "1"
+              ]
             }
           }
         },
@@ -466,10 +586,107 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "confirm"
+              ]
             },
             "description": "تأكيد السلة بالكود مع إمكانية تطبيق كوبون"
+          }
+        },
+        {
+          "name": "Create Cart (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"status\": \"active\",\n  \"items\": [\n    { \n      \"product_id\": 1, \n      \"color_id\": 1, \n      \"size_id\": 1, \n      \"quantity\": 2 \n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts"
+              ]
+            },
+            "description": "إنشاء سلة جديدة للعميل بواسطة المدير"
+          }
+        },
+        {
+          "name": "Update Cart (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"add_items\": [\n    { \n      \"product_id\": 2, \n      \"color_id\": 3, \n      \"size_id\": 5, \n      \"quantity\": 1 \n    }\n  ],\n  \"update_items\": [\n    { \n      \"item_id\": 1, \n      \"quantity\": 4 \n    }\n  ],\n  \"remove_item_ids\": [2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "1"
+              ]
+            },
+            "description": "تحديث حالة السلة وعناصرها (إضافة/تعديل/حذف)"
+          }
+        },
+        {
+          "name": "Delete Cart (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "1"
+              ]
+            },
+            "description": "حذف سلة بشكل كامل"
           }
         }
       ]
@@ -489,8 +706,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/orders",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "orders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders"
+              ]
             }
           }
         },
@@ -506,8 +729,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/orders/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "orders", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "1"
+              ]
             }
           }
         },
@@ -531,8 +761,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/orders/1/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "orders", "1", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "1",
+                "status"
+              ]
             }
           }
         },
@@ -548,8 +786,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "orders", "1", "invoice"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "1",
+                "invoice"
+              ]
             },
             "description": "تحميل فاتورة PDF للطلب"
           }
@@ -566,8 +812,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice/view",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "orders", "1", "invoice", "view"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "1",
+                "invoice",
+                "view"
+              ]
             },
             "description": "عرض الفاتورة في المتصفح"
           }
@@ -597,8 +852,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers"
+              ]
             }
           }
         },
@@ -614,8 +875,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers"
+              ]
             }
           }
         },
@@ -631,10 +898,19 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers?search=SHZ-",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers"
+              ],
               "query": [
-                { "key": "search", "value": "SHZ-" }
+                {
+                  "key": "search",
+                  "value": "SHZ-"
+                }
               ]
             },
             "description": "بحث عن العملاء باستخدام الاسم، الكود، أو رقم الهاتف"
@@ -652,8 +928,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers",
+                "1"
+              ]
             }
           }
         },
@@ -677,8 +960,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers",
+                "1"
+              ]
             },
             "description": "تحديث بيانات العميل"
           }
@@ -695,8 +985,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/customers/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "customers", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "customers",
+                "1"
+              ]
             },
             "description": "حذف عميل"
           }
@@ -726,8 +1023,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/admins",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "admins"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "admins"
+              ]
             },
             "description": "إنشاء Admin جديد (role: admin أو super_admin)"
           }
@@ -744,8 +1047,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/admins",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "admins"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "admins"
+              ]
             }
           }
         },
@@ -761,8 +1070,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/admins/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "admins", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "admins",
+                "2"
+              ]
             },
             "description": "لا يمكن حذف حسابك الخاص"
           }
@@ -784,8 +1100,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings"
+              ]
             }
           }
         },
@@ -809,8 +1131,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/settings/item_lock_minutes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "settings", "item_lock_minutes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "item_lock_minutes"
+              ]
             }
           }
         },
@@ -834,8 +1163,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/settings/cart_reminder_days",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "settings", "cart_reminder_days"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "cart_reminder_days"
+              ]
             }
           }
         },
@@ -859,8 +1195,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/settings/max_cart_items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "settings", "max_cart_items"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "max_cart_items"
+              ]
             }
           }
         }
@@ -889,8 +1232,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             },
             "description": "كوبون خصم ثابت 50"
           }
@@ -915,8 +1264,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             },
             "description": "كوبون خصم 15% بحد أقصى 100"
           }
@@ -941,8 +1296,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             },
             "description": "كوبون مخصص لمستخدمين محددين (IDs: 1, 2)"
           }
@@ -967,8 +1328,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             },
             "description": "كوبون مخصص لمنتجات محددة (IDs: 1, 2)"
           }
@@ -993,8 +1360,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             },
             "description": "كوبون مع حد استخدام وتاريخ انتهاء"
           }
@@ -1011,8 +1384,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons"
+              ]
             }
           }
         },
@@ -1028,8 +1407,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons/1/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons", "1", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons",
+                "1",
+                "status"
+              ]
             }
           }
         },
@@ -1045,8 +1432,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/coupons/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "coupons", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons",
+                "1"
+              ]
             }
           }
         }
@@ -1075,8 +1469,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/coupons/validate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "coupons", "validate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "validate"
+              ]
             }
           }
         }
@@ -1097,8 +1497,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "profile"
+              ]
             }
           }
         },
@@ -1122,8 +1527,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "profile"
+              ]
             }
           }
         },
@@ -1149,8 +1559,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/profile/invoice-image",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "invoice-image"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "profile",
+                "invoice-image"
+              ]
             }
           }
         }
@@ -1171,8 +1587,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/favorites",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "favorites"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "favorites"
+              ]
             }
           }
         },
@@ -1188,8 +1609,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/favorites/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "favorites", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "favorites",
+                "1"
+              ]
             }
           }
         },
@@ -1205,8 +1632,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/favorites/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "favorites", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "favorites",
+                "1"
+              ]
             }
           }
         },
@@ -1222,8 +1655,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/favorites/1/toggle",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "favorites", "1", "toggle"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "favorites",
+                "1",
+                "toggle"
+              ]
             }
           }
         },
@@ -1239,8 +1679,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/favorites/1/check",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "favorites", "1", "check"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "favorites",
+                "1",
+                "check"
+              ]
             }
           }
         }
@@ -1269,8 +1716,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "carts", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "confirm"
+              ]
             },
             "description": "تأكيد السلة مع حساب الديون. paid_amount = المبلغ المدفوع"
           }
@@ -1292,8 +1746,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/debts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "debts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "debts"
+              ]
             }
           }
         },
@@ -1309,8 +1769,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/debts/2",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "debts", "2"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "debts",
+                "2"
+              ]
             }
           }
         },
@@ -1334,8 +1801,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/debts/payment",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "debts", "payment"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "debts",
+                "payment"
+              ]
             }
           }
         },
@@ -1359,8 +1833,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/debts/1/payment",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "debts", "1", "payment"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "debts",
+                "1",
+                "payment"
+              ]
             }
           }
         }
@@ -1381,13 +1863,31 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/products?search=فستان&availability_status=visible",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "products"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "products"
+              ],
               "query": [
-                { "key": "search", "value": "فستان" },
-                { "key": "availability_status", "value": "visible" },
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" }
+                {
+                  "key": "search",
+                  "value": "فستان"
+                },
+                {
+                  "key": "availability_status",
+                  "value": "visible"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
               ]
             },
             "description": "عرض المنتجات مع البحث والفلترة (بما في ذلك المخفية)"
@@ -1405,8 +1905,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/products/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "products", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "products",
+                "1"
+              ]
             },
             "description": "عرض تفاصيل منتج للوحة التحكم (بما في ذلك المخفية)"
           }
@@ -1468,8 +1975,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/add-product",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "add-product"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "add-product"
+              ]
             },
             "description": "إضافة منتج جديد مع صور - الكود يتم توليده تلقائياً (PRD-XXXXXX). أول صورة تصبح الصورة الرئيسية."
           }
@@ -1536,8 +2048,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/update-product/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "update-product", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "update-product",
+                "1"
+              ]
             },
             "description": "تعديل منتج مع إضافة صور جديدة - يمكن إضافة/تعديل/حذف الألوان والمقاسات"
           }
@@ -1554,8 +2072,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/delete/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "delete", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "delete",
+                "1"
+              ]
             },
             "description": "حذف منتج مع جميع الألوان والمقاسات والصور المرتبطة"
           }
@@ -1587,8 +2111,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/images/upload",
-              "host": ["{{baseUrl}}"],
-              "path": ["images", "upload"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "images",
+                "upload"
+              ]
             },
             "description": "رفع صور إضافية لمنتج موجود (الحد الأقصى 20 صورة)"
           }
@@ -1613,8 +2142,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/images/delete",
-              "host": ["{{baseUrl}}"],
-              "path": ["images", "delete"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "images",
+                "delete"
+              ]
             },
             "description": "حذف صور من منتج"
           }
@@ -1644,8 +2178,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews"
+              ]
             }
           }
         },
@@ -1661,8 +2200,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/my-reviews",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "my-reviews"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "my-reviews"
+              ]
             }
           }
         },
@@ -1678,8 +2223,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/product/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "product", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "product",
+                "1"
+              ]
             }
           }
         },
@@ -1695,8 +2247,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/can-review/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "can-review", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "can-review",
+                "1"
+              ]
             }
           }
         }
@@ -1717,8 +2276,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/reviews/statistics",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "reviews", "statistics"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "reviews",
+                "statistics"
+              ]
             }
           }
         },
@@ -1734,8 +2300,39 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/reviews/pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "reviews", "pending"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "reviews",
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Reviews (All Statuses)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/reviews/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "reviews",
+                "all"
+              ]
             }
           }
         },
@@ -1751,8 +2348,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/reviews/1/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "reviews", "1", "approve"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "reviews",
+                "1",
+                "approve"
+              ]
             }
           }
         },
@@ -1768,8 +2373,16 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/reviews/1/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "reviews", "1", "reject"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "reviews",
+                "1",
+                "reject"
+              ]
             }
           }
         }

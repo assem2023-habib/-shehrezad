@@ -94,10 +94,88 @@ const confirmCartByCode = async (req, res) => {
   }
 };
 
+/**
+ * إنشاء سلة جديدة (مدير)
+ * POST /api/dashboard/carts
+ */
+const createCart = async (req, res) => {
+  try {
+    const { user_id, status = 'active', items = [] } = req.body;
+
+    if (!user_id) {
+      return response.badRequest(res, 'يرجى إدخال معرف المستخدم');
+    }
+
+    const result = await dashboardCartsService.createCartAdmin(parseInt(user_id), status, items);
+    return response.created(res, result, 'تم إنشاء السلة بنجاح');
+
+  } catch (error) {
+    console.error('Create Cart Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء إنشاء السلة');
+  }
+};
+
+/**
+ * تحديث سلة (مدير)
+ * PUT /api/dashboard/carts/:cart_id
+ */
+const updateCart = async (req, res) => {
+  try {
+    const { cart_id } = req.params;
+    const payload = req.body || {};
+
+    const id = parseInt(cart_id);
+    if (Number.isNaN(id)) {
+      return response.badRequest(res, 'معرف السلة غير صالح');
+    }
+
+    const exists = await dashboardCartsService.getCartDetails(id);
+    if (!exists) {
+      return response.notFound(res, 'السلة غير موجودة');
+    }
+
+    const result = await dashboardCartsService.updateCartAdmin(id, payload);
+    return response.success(res, result);
+
+  } catch (error) {
+    console.error('Update Cart Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء تحديث السلة');
+  }
+};
+
+/**
+ * حذف سلة (مدير)
+ * DELETE /api/dashboard/carts/:cart_id
+ */
+const deleteCart = async (req, res) => {
+  try {
+    const { cart_id } = req.params;
+    const id = parseInt(cart_id);
+    if (Number.isNaN(id)) {
+      return response.badRequest(res, 'معرف السلة غير صالح');
+    }
+
+    const exists = await dashboardCartsService.getCartDetails(id);
+    if (!exists) {
+      return response.notFound(res, 'السلة غير موجودة');
+    }
+
+    await dashboardCartsService.deleteCartAdmin(id);
+    return response.deleted(res, 'تم حذف السلة بنجاح');
+
+  } catch (error) {
+    console.error('Delete Cart Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء حذف السلة');
+  }
+};
+
 module.exports = {
   getAllCarts,
   getAllCartItems,
   getPendingCarts,
   getCartDetails,
-  confirmCartByCode
+  confirmCartByCode,
+  createCart,
+  updateCart,
+  deleteCart
 };

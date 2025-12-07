@@ -7,6 +7,7 @@ const cron = require('node-cron');
 const pool = require('./dbconnect');
 const settingsService = require('./settings_service');
 const { SETTING_KEYS, CART_STATUS } = require('./constants');
+const admin = require('../firebase');
 
 /**
  * قفل العناصر المنتهية الصلاحية وخصم المخزون
@@ -18,9 +19,10 @@ const lockExpiredItems = async () => {
 
     // جلب العناصر غير المقفلة التي تجاوزت المدة
     const expiredItems = await pool.query(`
-      SELECT ci.item_id, ci.size_id, ci.quantity
+      SELECT ci.item_id, ci.size_id, ci.quantity, c.cart_code, u.full_name as customer_name
       FROM cart_items ci
       JOIN carts c ON ci.cart_id = c.cart_id
+      JOIN users u ON c.user_id = u.user_id
       WHERE ci.is_locked = 0
         AND c.status = ?
         AND TIMESTAMPDIFF(MINUTE, ci.added_at, NOW()) >= ?
@@ -44,6 +46,18 @@ const lockExpiredItems = async () => {
         'UPDATE cart_items SET stock_deducted = 1 WHERE item_id = ?',
         [item.item_id]
       );
+
+      try {
+        await admin.messaging().send({
+          notification: {
+            title: 'حجز جديد!',
+            body: `تم حجز قطعة بواسطة ${item.customer_name}`
+          },
+          topic: 'dashboard_notifications'
+        });
+      } catch (e) {
+        console.error('FCM Error:', e);
+      }
 
       console.log(`[CRON] Locked item ${item.item_id} and deducted stock`);
     }

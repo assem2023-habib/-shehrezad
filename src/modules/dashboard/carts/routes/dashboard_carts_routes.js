@@ -24,6 +24,15 @@ router.get('/pending', dashboardCartsController.getPendingCarts);
 // تأكيد السلة بالكود - (محاسب أو أدمن فقط)
 router.post('/confirm', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]), dashboardCartsController.confirmCartByCode);
 
+// إنشاء سلة - (أدمن فقط)
+router.post('/', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]), dashboardCartsController.createCart);
+
+// تحديث سلة - (أدمن فقط)
+router.put('/:cart_id', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]), dashboardCartsController.updateCart);
+
+// حذف سلة - (أدمن فقط)
+router.delete('/:cart_id', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]), dashboardCartsController.deleteCart);
+
 // تفاصيل سلة محددة
 router.get('/:cart_id', dashboardCartsController.getCartDetails);
 
