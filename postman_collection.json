@@ -1,0 +1,1779 @@
+{
+  "info": {
+    "_postman_id": "shehrezad-backend-collection",
+    "name": "Shehrezad Backend API",
+    "description": "مجموعة اختبار API لمشروع شهرزاد",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "setupKey",
+      "value": "SUPER_ADMIN_REGISTER_12304@@@!!%%%124214",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🚀 Setup (First Time)",
+      "item": [
+        {
+          "name": "Setup Super Admin (First Time Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    console.log('Super Admin created successfully!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"setup_key\": \"{{setupKey}}\",\n    \"full_name\": \"Super Admin\",\n    \"email\": \"admin@shehrezad.com\",\n    \"password\": \"admin123\",\n    \"phone\": \"0912345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/setup-admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "setup-admin"]
+            },
+            "description": "⚠️ يعمل مرة واحدة فقط عند عدم وجود Super Admin"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Employee Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"employee@shehrezad.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "تسجيل دخول الموظفين فقط"
+          }
+        },
+        {
+          "name": "Super Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@shehrezad.com\",\n    \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/super-admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "super-admin", "login"]
+            },
+            "description": "تسجيل دخول Super Admin فقط"
+          }
+        },
+        {
+          "name": "Customer Login (by Code)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('customerToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer_code\": \"SHZ-XXXXXX\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "customer-login"]
+            }
+          }
+        },
+        {
+          "name": "Get User Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/get-userinfo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-userinfo"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛍️ Products (Public)",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get Products with Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?search=فستان",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "search", "value": "فستان" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/category/women",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "category", "women"]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Cart (Customer)",
+      "item": [
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": 1,\n    \"color_id\": 1,\n    \"size_id\": 1,\n    \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "add"]
+            }
+          }
+        },
+        {
+          "name": "Get My Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart"]
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/update/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "update", "1"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/remove/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "remove", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎛️ Dashboard - Carts",
+      "item": [
+        {
+          "name": "Get All Carts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts"]
+            }
+          }
+        },
+        {
+          "name": "Get All Cart Items (Real-time)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts", "items"]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Carts (15+ days)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Get Cart Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Cart (by Code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cart_code\": \"CART-XXXX-XXXX\",\n    \"paid_amount\": 0,\n    \"coupon_code\": \"SAVE10\",\n    \"shipping_address\": \"دمشق - المزة - شارع 14\",\n    \"payment_method\": \"cod\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts", "confirm"]
+            },
+            "description": "تأكيد السلة بالكود مع إمكانية تطبيق كوبون"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Dashboard - Orders",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "orders", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"shipped\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "orders", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Download Invoice PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "orders", "1", "invoice"]
+            },
+            "description": "تحميل فاتورة PDF للطلب"
+          }
+        },
+        {
+          "name": "View Invoice PDF (in Browser)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice/view",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "orders", "1", "invoice", "view"]
+            },
+            "description": "عرض الفاتورة في المتصفح"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Dashboard - Customers",
+      "item": [
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"سارة أحمد\",\n    \"phone\": \"0912345678\",\n    \"email\": \"sara@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Search Customers (by Code/Name/Phone)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers?search=SHZ-",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers"],
+              "query": [
+                { "key": "search", "value": "SHZ-" }
+              ]
+            },
+            "description": "بحث عن العملاء باستخدام الاسم، الكود، أو رقم الهاتف"
+          }
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"سارة محمد\",\n    \"phone\": \"0987654321\",\n    \"email\": \"sara.updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers", "1"]
+            },
+            "description": "تحديث بيانات العميل"
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/customers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "customers", "1"]
+            },
+            "description": "حذف عميل"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👔 Dashboard - Admins (Super Admin Only)",
+      "item": [
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"محمد أحمد\",\n    \"email\": \"mohamed@shehrezad.com\",\n    \"password\": \"password123\",\n    \"phone\": \"0987654321\",\n    \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/admins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "admins"]
+            },
+            "description": "إنشاء Admin جديد (role: admin أو super_admin)"
+          }
+        },
+        {
+          "name": "Get All Admins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/admins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "admins"]
+            }
+          }
+        },
+        {
+          "name": "Delete Admin",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/admins/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "admins", "2"]
+            },
+            "description": "لا يمكن حذف حسابك الخاص"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Dashboard - Settings (Super Admin Only)",
+      "item": [
+        {
+          "name": "Get All Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Lock Timer (minutes)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"value\": \"15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/item_lock_minutes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "settings", "item_lock_minutes"]
+            }
+          }
+        },
+        {
+          "name": "Update Reminder Days",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"value\": \"20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/cart_reminder_days",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "settings", "cart_reminder_days"]
+            }
+          }
+        },
+        {
+          "name": "Update Max Cart Items",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"value\": \"100\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/max_cart_items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "settings", "max_cart_items"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎟️ Dashboard - Coupons",
+      "item": [
+        {
+          "name": "Create Coupon (Fixed Amount)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"FIXED50\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 50,\n    \"min_purchase_amount\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            },
+            "description": "كوبون خصم ثابت 50"
+          }
+        },
+        {
+          "name": "Create Coupon (Percentage)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"PERCENT15\",\n    \"discount_type\": \"percentage\",\n    \"discount_value\": 15,\n    \"max_discount_amount\": 100,\n    \"min_purchase_amount\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            },
+            "description": "كوبون خصم 15% بحد أقصى 100"
+          }
+        },
+        {
+          "name": "Create Coupon (Specific Users)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"VIPUSER\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 100,\n    \"target_audience\": \"specific_users\",\n    \"customer_ids\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            },
+            "description": "كوبون مخصص لمستخدمين محددين (IDs: 1, 2)"
+          }
+        },
+        {
+          "name": "Create Coupon (Specific Products)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"PRODSALE\",\n    \"discount_type\": \"percentage\",\n    \"discount_value\": 25,\n    \"target_products_type\": \"specific_products\",\n    \"product_ids\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            },
+            "description": "كوبون مخصص لمنتجات محددة (IDs: 1, 2)"
+          }
+        },
+        {
+          "name": "Create Coupon (With Limits & Expiry)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"LIMITED2024\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 30,\n    \"usage_limit\": 50,\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            },
+            "description": "كوبون مع حد استخدام وتاريخ انتهاء"
+          }
+        },
+        {
+          "name": "Get All Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Coupon Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Coupon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "coupons", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎫 Customer - Coupons",
+      "item": [
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"SAVE20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "coupons", "validate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Customer - Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"phone\": \"0500000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Upload Invoice Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profile/invoice-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile", "invoice-image"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Favorites",
+      "item": [
+        {
+          "name": "Get My Favorites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            }
+          }
+        },
+        {
+          "name": "Add to Favorites",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "1"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Favorites",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "1"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/1/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "1", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Check if Favorite",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/1/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "1", "check"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Dashboard - Carts",
+      "item": [
+        {
+          "name": "Confirm Cart By Code (with Debt)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cart_code\": \"CART-20241205-00001\",\n    \"paid_amount\": 3000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "carts", "confirm"]
+            },
+            "description": "تأكيد السلة مع حساب الديون. paid_amount = المبلغ المدفوع"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Dashboard - Debts",
+      "item": [
+        {
+          "name": "Get All Customers With Debts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/debts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "debts"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Debt History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/debts/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "debts", "2"]
+            }
+          }
+        },
+        {
+          "name": "Record Payment to Customer Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 2,\n    \"amount\": 500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/debts/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "debts", "payment"]
+            }
+          }
+        },
+        {
+          "name": "Record Payment to Specific Debt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/debts/1/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "debts", "1", "payment"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Dashboard - Products",
+      "item": [
+        {
+          "name": "Get Products (Search & Filter)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/products?search=فستان&availability_status=visible",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "products"],
+              "query": [
+                { "key": "search", "value": "فستان" },
+                { "key": "availability_status", "value": "visible" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "عرض المنتجات مع البحث والفلترة (بما في ذلك المخفية)"
+          }
+        },
+        {
+          "name": "Get Product by ID (Dashboard)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/products/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "products", "1"]
+            },
+            "description": "عرض تفاصيل منتج للوحة التحكم (بما في ذلك المخفية)"
+          }
+        },
+        {
+          "name": "Add Product (with Images)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "product_name",
+                  "value": "فستان صيفي",
+                  "type": "text"
+                },
+                {
+                  "key": "product_description",
+                  "value": "فستان صيفي أنيق",
+                  "type": "text"
+                },
+                {
+                  "key": "product_category",
+                  "value": "women",
+                  "type": "text"
+                },
+                {
+                  "key": "price_usd",
+                  "value": "50",
+                  "type": "text"
+                },
+                {
+                  "key": "price_try",
+                  "value": "850",
+                  "type": "text"
+                },
+                {
+                  "key": "price_syp",
+                  "value": "500000",
+                  "type": "text"
+                },
+                {
+                  "key": "colors",
+                  "value": "[{\"color_name\":\"أحمر\",\"color_value\":\"#FF0000\",\"sizes\":[{\"size_value\":\"S\",\"quantity\":10},{\"size_value\":\"M\",\"quantity\":5}]}]",
+                  "type": "text"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/add-product",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "add-product"]
+            },
+            "description": "إضافة منتج جديد مع صور - الكود يتم توليده تلقائياً (PRD-XXXXXX). أول صورة تصبح الصورة الرئيسية."
+          }
+        },
+        {
+          "name": "Update Product (with Images)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "product_code",
+                  "value": "PRD-ABC123",
+                  "type": "text"
+                },
+                {
+                  "key": "product_name",
+                  "value": "فستان صيفي محدث",
+                  "type": "text"
+                },
+                {
+                  "key": "product_description",
+                  "value": "فستان صيفي أنيق - تم التحديث",
+                  "type": "text"
+                },
+                {
+                  "key": "product_category",
+                  "value": "women",
+                  "type": "text"
+                },
+                {
+                  "key": "price_usd",
+                  "value": "55",
+                  "type": "text"
+                },
+                {
+                  "key": "price_try",
+                  "value": "900",
+                  "type": "text"
+                },
+                {
+                  "key": "price_syp",
+                  "value": "550000",
+                  "type": "text"
+                },
+                {
+                  "key": "colors",
+                  "value": "[{\"color_id\":1,\"color_name\":\"أحمر غامق\",\"color_value\":\"#CC0000\",\"sizes\":[{\"size_id\":1,\"size_value\":\"S\",\"quantity\":15}]}]",
+                  "type": "text"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-product/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-product", "1"]
+            },
+            "description": "تعديل منتج مع إضافة صور جديدة - يمكن إضافة/تعديل/حذف الألوان والمقاسات"
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/delete/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete", "1"]
+            },
+            "description": "حذف منتج مع جميع الألوان والمقاسات والصور المرتبطة"
+          }
+        },
+        {
+          "name": "Upload Product Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "product_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/images/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["images", "upload"]
+            },
+            "description": "رفع صور إضافية لمنتج موجود (الحد الأقصى 20 صورة)"
+          }
+        },
+        {
+          "name": "Delete Product Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": 1,\n    \"image_ids\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/images/delete",
+              "host": ["{{baseUrl}}"],
+              "path": ["images", "delete"]
+            },
+            "description": "حذف صور من منتج"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Reviews (Customer)",
+      "item": [
+        {
+          "name": "Add Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": 1,\n    \"order_id\": 1,\n    \"rating\": 5,\n    \"comment\": \"منتج رائع جداً وأنصح به!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/my-reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "my-reviews"]
+            }
+          }
+        },
+        {
+          "name": "Get Product Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/product/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "product", "1"]
+            }
+          }
+        },
+        {
+          "name": "Check Can Review",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/can-review/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reviews", "can-review", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌟 Dashboard - Reviews",
+      "item": [
+        {
+          "name": "Get Reviews Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/reviews/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "reviews", "statistics"]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/reviews/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "reviews", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Approve Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/reviews/1/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "reviews", "1", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/reviews/1/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "reviews", "1", "reject"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
