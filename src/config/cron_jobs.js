@@ -6,7 +6,7 @@
 const cron = require('node-cron');
 const pool = require('./dbconnect');
 const settingsService = require('./settings_service');
-const { SETTING_KEYS, CART_STATUS } = require('./constants');
+const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS } = require('./constants');
 const admin = require('../firebase');
 
 /**
@@ -77,12 +77,16 @@ const lockExpiredItems = async () => {
  */
 const sendShipmentReminders = async () => {
   try {
-    const reminderDays = await settingsService.get(SETTING_KEYS.CART_REMINDER_DAYS);
+    const reminderSetting = await settingsService.get(SETTING_KEYS.CART_REMINDER_DAYS);
+    const reminderDays = Number.isFinite(parseInt(reminderSetting)) && parseInt(reminderSetting) > 0
+      ? parseInt(reminderSetting)
+      : DEFAULT_SETTINGS[SETTING_KEYS.CART_REMINDER_DAYS];
 
     // جلب السلات التي تجاوزت المدة ولم يُرسل لها تذكير
     const pendingCarts = await pool.query(`
-      SELECT c.cart_id, c.user_id
+      SELECT c.cart_id, c.user_id, c.cart_code, u.full_name as customer_name
       FROM carts c
+      JOIN users u ON c.user_id = u.user_id
       WHERE c.status = ?
         AND c.reminder_sent = 0
         AND DATEDIFF(NOW(), c.created_at) >= ?
@@ -104,6 +108,18 @@ const sendShipmentReminders = async () => {
         'UPDATE carts SET reminder_sent = 1, status = ? WHERE cart_id = ?',
         [CART_STATUS.PENDING_SHIPMENT, cart.cart_id]
       );
+
+      try {
+        await admin.messaging().send({
+          notification: {
+            title: 'تذكير بالشحن',
+            body: `مرحباً ${cart.customer_name}! مضى أكثر من ${reminderDays} يوم على سلتك (${cart.cart_code}). يرجى التواصل معنا لترتيب الشحن.`
+          },
+          topic: `user_${cart.user_id}`
+        });
+      } catch (e) {
+        console.error('FCM Error:', e);
+      }
 
       console.log(`[CRON] Sent reminder for cart ${cart.cart_id}`);
     }
