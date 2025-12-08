@@ -76,11 +76,41 @@ const getAllProducts = async (filters = {}) => {
   const totalResult = await pool.query(countQuery, countParams);
   const total = totalResult[0].total;
 
-  return {
-    products: products.map(p => ({
+  // إرفاق كل الكوبونات الفعالة لكل منتج
+  const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const productsWithCoupons = await Promise.all(products.map(async (p) => {
+    const couponRows = await pool.query(`
+      SELECT 
+        c.coupon_id,
+        c.code,
+        c.discount_type,
+        c.discount_value,
+        c.max_discount_amount,
+        c.min_purchase_amount,
+        c.usage_limit,
+        c.used_count,
+        c.start_date,
+        c.end_date,
+        c.target_audience,
+        c.target_products_type
+      FROM coupons c
+      LEFT JOIN coupon_products cp ON c.coupon_id = cp.coupon_id
+      WHERE c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= ?)
+        AND (c.end_date IS NULL OR c.end_date >= ?)
+        AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+        AND (c.target_products_type = 'all' OR cp.product_id = ?)
+    `, [now, now, p.product_id]);
+
+    return {
       ...p,
-      total_stock: parseInt(p.total_stock) || 0
-    })),
+      total_stock: parseInt(p.total_stock) || 0,
+      coupons: couponRows
+    };
+  }));
+
+  return {
+    products: productsWithCoupons,
     pagination: {
       total,
       page: parseInt(page),
@@ -170,7 +200,29 @@ const getProductById = async (productId) => {
       pending_reviews: reviewStats[0].pending_reviews || 0,
       approved_reviews: reviewStats[0].approved_reviews || 0
     },
-    reviews
+    reviews,
+    coupons: await pool.query(`
+      SELECT 
+        c.coupon_id,
+        c.code,
+        c.discount_type,
+        c.discount_value,
+        c.max_discount_amount,
+        c.min_purchase_amount,
+        c.usage_limit,
+        c.used_count,
+        c.start_date,
+        c.end_date,
+        c.target_audience,
+        c.target_products_type
+      FROM coupons c
+      LEFT JOIN coupon_products cp ON c.coupon_id = cp.coupon_id
+      WHERE c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= NOW())
+        AND (c.end_date IS NULL OR c.end_date >= NOW())
+        AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+        AND (c.target_products_type = 'all' OR cp.product_id = ?)
+    `, [productId])
   };
 };
 

@@ -4,6 +4,7 @@
 
 const settingsService = require('../../../../config/settings_service');
 const response = require('../../../../config/response_helper');
+const { SETTING_KEYS } = require('../../../../config/constants');
 
 /**
  * جلب جميع الإعدادات
@@ -44,5 +45,53 @@ const updateSetting = async (req, res) => {
 
 module.exports = {
   getAllSettings,
-  updateSetting
+  updateSetting,
+  updateInquiryNumbers: async (req, res) => {
+    try {
+      let { numbers } = req.body;
+      if (!Array.isArray(numbers)) {
+        return response.badRequest(res, 'يرجى إرسال قائمة الأرقام بشكل مصفوفة');
+      }
+      numbers = numbers.map(n => String(n).trim()).filter(n => n.length > 0);
+      await settingsService.update(SETTING_KEYS.INQUIRY_STAFF_NUMBERS, JSON.stringify(numbers), req.user.user_id);
+      return response.updated(res, { numbers }, 'تم تحديث أرقام موظفي الاستعلام');
+    } catch (error) {
+      console.error('Update Inquiry Numbers Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء تحديث الأرقام');
+    }
+  },
+  updateSupportNumbers: async (req, res) => {
+    try {
+      let { numbers } = req.body;
+      if (!Array.isArray(numbers)) {
+        return response.badRequest(res, 'يرجى إرسال قائمة الأرقام بشكل مصفوفة');
+      }
+      numbers = numbers.map(n => String(n).trim()).filter(n => n.length > 0);
+      await settingsService.update(SETTING_KEYS.SUPPORT_STAFF_NUMBERS, JSON.stringify(numbers), req.user.user_id);
+      return response.updated(res, { numbers }, 'تم تحديث أرقام موظفي الدعم');
+    } catch (error) {
+      console.error('Update Support Numbers Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء تحديث الأرقام');
+    }
+  },
+  updateBankAccount: async (req, res) => {
+    try {
+      const { bank_name, account_holder, iban, account_number, branch } = req.body;
+      if (!bank_name || !iban) {
+        return response.badRequest(res, 'يرجى إدخال اسم البنك و رقم الآيبان');
+      }
+      const data = {
+        bank_name: String(bank_name).trim(),
+        account_holder: account_holder ? String(account_holder).trim() : null,
+        iban: String(iban).trim(),
+        account_number: account_number ? String(account_number).trim() : null,
+        branch: branch ? String(branch).trim() : null
+      };
+      await settingsService.update(SETTING_KEYS.BANK_ACCOUNT, JSON.stringify(data), req.user.user_id);
+      return response.updated(res, data, 'تم تحديث بيانات الحساب البنكي');
+    } catch (error) {
+      console.error('Update Bank Account Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء تحديث الحساب البنكي');
+    }
+  }
 };

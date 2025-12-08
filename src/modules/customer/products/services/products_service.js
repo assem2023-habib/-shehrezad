@@ -49,12 +49,23 @@ const getAllProducts = async (filters = {}) => {
 
   const products = await pool.query(query, params);
 
-  // جلب الخصومات المتاحة لكل منتج
+  // جلب الكوبونات المتاحة لكل منتج
   const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const productsWithDiscounts = await Promise.all(products.map(async (p) => {
-    // البحث عن كوبون صالح لهذا المنتج
-    const coupons = await pool.query(`
-      SELECT c.code, c.discount_type, c.discount_value
+  const productsWithCoupons = await Promise.all(products.map(async (p) => {
+    const couponRows = await pool.query(`
+      SELECT 
+        c.coupon_id,
+        c.code,
+        c.discount_type,
+        c.discount_value,
+        c.max_discount_amount,
+        c.min_purchase_amount,
+        c.usage_limit,
+        c.used_count,
+        c.start_date,
+        c.end_date,
+        c.target_audience,
+        c.target_products_type
       FROM coupons c
       LEFT JOIN coupon_products cp ON c.coupon_id = cp.coupon_id
       WHERE c.status = 'active'
@@ -62,35 +73,17 @@ const getAllProducts = async (filters = {}) => {
         AND (c.end_date IS NULL OR c.end_date >= ?)
         AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
         AND (c.target_products_type = 'all' OR cp.product_id = ?)
-      LIMIT 1
     `, [now, now, p.product_id]);
-
-    let discount = null;
-    if (coupons.length > 0) {
-      const coupon = coupons[0];
-      let discountedPrice = p.price_try;
-      if (coupon.discount_type === 'percentage') {
-        discountedPrice = p.price_try - (p.price_try * coupon.discount_value / 100);
-      } else {
-        discountedPrice = p.price_try - coupon.discount_value;
-      }
-      discount = {
-        code: coupon.code,
-        type: coupon.discount_type,
-        value: coupon.discount_value,
-        price_after_discount: Math.max(0, discountedPrice).toFixed(2)
-      };
-    }
 
     return {
       ...p,
       is_available: p.total_stock > 0,
       total_stock: parseInt(p.total_stock) || 0,
-      discount
+      coupons: couponRows
     };
   }));
 
-  return productsWithDiscounts;
+  return productsWithCoupons;
 };
 
 /**
@@ -179,6 +172,29 @@ const getProductById = async (productId) => {
     review_count: reviewStats[0].review_count || 0,
     average_rating: parseFloat(reviewStats[0].average_rating || 0).toFixed(1),
     reviews
+    ,
+    coupons: await pool.query(`
+      SELECT 
+        c.coupon_id,
+        c.code,
+        c.discount_type,
+        c.discount_value,
+        c.max_discount_amount,
+        c.min_purchase_amount,
+        c.usage_limit,
+        c.used_count,
+        c.start_date,
+        c.end_date,
+        c.target_audience,
+        c.target_products_type
+      FROM coupons c
+      LEFT JOIN coupon_products cp ON c.coupon_id = cp.coupon_id
+      WHERE c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= NOW())
+        AND (c.end_date IS NULL OR c.end_date >= NOW())
+        AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+        AND (c.target_products_type = 'all' OR cp.product_id = ?)
+    `, [productId])
   };
 };
 

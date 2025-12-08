@@ -78,14 +78,24 @@ const getCartDetails = async (req, res) => {
  */
 const confirmCartByCode = async (req, res) => {
   try {
-    const { cart_code, paid_amount, coupon_code, shipping_address, payment_method } = req.body;
+    const { cart_code, paid_amount, shipping_address, payment_method, currency, customer_note, cart_note, grand_total } = req.body;
     const employeeId = req.user.user_id;
 
     if (!cart_code) {
       return response.badRequest(res, 'يرجى إدخال كود السلة');
     }
 
-    const result = await dashboardCartsService.confirmCartByCode(cart_code, employeeId, paid_amount || 0, coupon_code, shipping_address, payment_method);
+    const result = await dashboardCartsService.confirmCartByCode(
+      cart_code,
+      employeeId,
+      paid_amount || 0,
+      shipping_address,
+      payment_method,
+      currency || 'TRY',
+      customer_note || null,
+      cart_note || null,
+      grand_total !== undefined ? grand_total : null
+    );
     return response.created(res, result, 'تم تأكيد السلة وإنشاء الطلب بنجاح');
 
   } catch (error) {

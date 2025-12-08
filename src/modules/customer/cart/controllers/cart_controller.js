@@ -90,9 +90,69 @@ const updateCartItem = async (req, res) => {
   }
 };
 
+/**
+ * مسح السلة (العناصر غير المحجوزة فقط)
+ * DELETE /api/cart/clear
+ */
+const clearCart = async (req, res) => {
+  try {
+    const result = await cartService.clearCart(req.user.user_id);
+    return response.deleted(res, 'تم مسح العناصر غير المحجوزة من السلة');
+  } catch (error) {
+    console.error('Clear Cart Error:', error);
+    return response.handleError(res, error, 'حدث خطأ أثناء مسح السلة');
+  }
+};
+
+/**
+ * تعيين/تعديل أسماء المستفيدين لعنصر سلة
+ * PUT /api/cart/beneficiaries/:item_id
+ */
+const setItemBeneficiaries = async (req, res) => {
+  try {
+    const { item_id } = req.params;
+    const { beneficiaries = [] } = req.body;
+    const id = parseInt(item_id);
+    if (Number.isNaN(id)) {
+      return response.badRequest(res, 'معرف العنصر غير صالح');
+    }
+    const result = await cartService.setItemBeneficiaries(req.user.user_id, id, beneficiaries);
+    return response.success(res, result, 'تم تحديث أسماء المستفيدين');
+  } catch (error) {
+    console.error('Set Beneficiaries Error:', error);
+    return response.handleError(res, error, 'حدث خطأ أثناء تحديث أسماء المستفيدين');
+  }
+};
+
+const getUnlockedCartItems = async (req, res) => {
+  try {
+    const result = await cartService.getUnlockedItems(req.user.user_id);
+    return response.success(res, result);
+  } catch (error) {
+    console.error('Get Unlocked Cart Items Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء جلب عناصر السلة غير المحجوزة');
+  }
+};
+
+const getLockedCartItems = async (req, res) => {
+  try {
+    const result = await cartService.getLockedItems(req.user.user_id);
+    return response.success(res, result);
+  } catch (error) {
+    console.error('Get Locked Cart Items Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء جلب عناصر السلة المحجوزة');
+  }
+};
+
 module.exports = {
   addToCart,
   getCart,
   removeFromCart,
   updateCartItem
+  ,
+  clearCart,
+  setItemBeneficiaries
+  ,
+  getUnlockedCartItems,
+  getLockedCartItems
 };

@@ -6,10 +6,10 @@
  */
 
 require('dotenv').config();
-const mysql = require('mysql');
+const { createConnection } = require('mysql');
 
 // إنشاء اتصال بدون تحديد قاعدة البيانات (لإنشائها أولاً)
-const connection = mysql.createConnection({
+const connection = createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -203,6 +203,18 @@ async function setupDatabase() {
     `);
     console.log("✅ Table 'cart_items' created");
 
+    // جدول مستفيدي عناصر السلة
+    await query(`
+      CREATE TABLE IF NOT EXISTS cart_item_beneficiaries (
+        beneficiary_id INT AUTO_INCREMENT PRIMARY KEY,
+        item_id INT NOT NULL,
+        beneficiary_name VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (item_id) REFERENCES cart_items(item_id) ON DELETE CASCADE
+      )
+    `);
+    console.log("✅ Table 'cart_item_beneficiaries' created");
+
 
     // جدول الإشعارات
     await query(`
@@ -226,7 +238,7 @@ async function setupDatabase() {
         order_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         total_amount DECIMAL(10, 2) NOT NULL,
-        status ENUM('pending', 'processing', 'shipped', 'completed', 'cancelled') DEFAULT 'pending',
+        status ENUM('unpaid', 'pending', 'processing', 'shipped', 'completed', 'cancelled') DEFAULT 'unpaid',
         shipping_address TEXT,
         payment_method ENUM('cod', 'online') DEFAULT 'cod',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -379,9 +391,9 @@ async function setupDatabase() {
       // نستخدم IGNORE لتجنب الخطأ إذا كان الفهرس موجوداً
       // ملاحظة: MySQL لا تدعم ALTER IGNORE بشكل مباشر للفهارس في كل الإصدارات، لذا نستخدم try-catch منفصل
       try {
-         await query("CREATE INDEX idx_user_id_regular ON carts(user_id)");
+        await query("CREATE INDEX idx_user_id_regular ON carts(user_id)");
       } catch (idxErr) {
-         // نتجاهل الخطأ إذا كان الفهرس موجوداً
+        // نتجاهل الخطأ إذا كان الفهرس موجوداً
       }
 
       // 2. حذف الفهرس الفريد القديم (الذي يمنع تكرار user_id)
@@ -446,6 +458,38 @@ async function setupDatabase() {
       }
     }
 
+
+    // إضافة حقول الملاحظات والعملة لجدول الطلبات
+    try {
+      await query("ALTER TABLE orders ADD COLUMN customer_note TEXT NULL");
+      await query("ALTER TABLE orders ADD COLUMN cart_note TEXT NULL");
+      await query("ALTER TABLE orders ADD COLUMN currency ENUM('USD','TRY','SYP') DEFAULT 'TRY'");
+      console.log("✅ Added notes and currency columns to orders table");
+    } catch (e) {
+      if (!e.message.includes("Duplicate column name")) {
+        console.log("ℹ️ Note on orders notes/currency: " + e.message);
+      }
+    }
+
+    // تحديث حالة الطلب لإضافة UNPAID كقيمة افتراضية وموجودة ضمن ENUM
+    try {
+      await query("ALTER TABLE orders MODIFY COLUMN status ENUM('unpaid','pending','processing','shipped','completed','cancelled') DEFAULT 'unpaid'");
+      console.log("✅ Updated orders.status ENUM to include 'unpaid' with default");
+    } catch (e) {
+      if (!e.message.includes("Duplicate column name") && !e.message.includes("DATA TYPE")) {
+        console.log("ℹ️ Note on orders status enum: " + e.message);
+      }
+    }
+
+    // إضافة حقل العملة لجدول ديون العملاء
+    try {
+      await query("ALTER TABLE customer_debts ADD COLUMN currency ENUM('USD','TRY','SYP') DEFAULT 'TRY'");
+      console.log("✅ Added currency column to customer_debts table");
+    } catch (e) {
+      if (!e.message.includes("Duplicate column name")) {
+        console.log("ℹ️ Note on debts currency: " + e.message);
+      }
+    }
 
     console.log('\n🎉 Database setup completed successfully!');
     console.log('📋 Tables created: users, invalid_tokens, products, product_images, product_colors, product_sizes, settings, carts, cart_items, notifications, orders, order_items, invoices, reviews, coupons, customer_debts');

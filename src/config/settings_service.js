@@ -59,11 +59,18 @@ const get = async (key) => {
  */
 const update = async (key, value, updatedBy = null) => {
   try {
-    await pool.query(
+    const result = await pool.query(
       'UPDATE settings SET setting_value = ?, updated_by = ? WHERE setting_key = ?',
       [value.toString(), updatedBy, key]
     );
-    // مسح الكاش لإعادة التحميل
+
+    if (!result.affectedRows) {
+      await pool.query(
+        'INSERT INTO settings (setting_key, setting_value, description, updated_by) VALUES (?, ?, NULL, ?)',
+        [key, value.toString(), updatedBy]
+      );
+    }
+
     settingsCache = null;
     cacheExpiry = null;
     return true;

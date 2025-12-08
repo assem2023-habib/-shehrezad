@@ -411,6 +411,52 @@
           }
         },
         {
+          "name": "Get Customer Orders (Unlocked: not cancelled/delivered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/unlocked",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "unlocked"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Orders (Locked: delivered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/locked",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "locked"
+              ]
+            }
+          }
+        },
+        {
           "name": "Update Cart Item",
           "request": {
             "method": "PUT",
@@ -464,6 +510,63 @@
                 "1"
               ]
             }
+          }
+        },
+        {
+          "name": "Clear Cart (non-locked items)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/clear",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "clear"
+              ]
+            },
+            "description": "يحذف العناصر غير المحجوزة فقط من سلة العميل"
+          }
+        },
+        {
+          "name": "Set Cart Item Beneficiaries",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"beneficiaries\": [\n    \"سارة محمد\",\n    \"ليلى أحمد\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/beneficiaries/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "beneficiaries",
+                "1"
+              ]
+            },
+            "description": "تعيين/تعديل أسماء المستفيدين لعنصر سلة محدد"
           }
         }
       ]
@@ -582,7 +685,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"cart_code\": \"CART-XXXX-XXXX\",\n    \"paid_amount\": 0,\n    \"coupon_code\": \"SAVE10\",\n    \"shipping_address\": \"دمشق - المزة - شارع 14\",\n    \"payment_method\": \"cod\"\n}"
+              "raw": "{\n  \"cart_code\": \"CART-20251208-00002\",\n  \"paid_amount\": 4000,\n  \"shipping_address\": \"دمشق - المزة - شارع 14\",\n  \"payment_method\": \"cod\",\n  \"currency\": \"TRY\",\n  \"customer_note\": \"ملاحظة من العميل\",\n  \"cart_note\": \"ملاحظة حول السلة\",\n  \"grand_total\": 3001\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
@@ -596,7 +699,7 @@
                 "confirm"
               ]
             },
-            "description": "تأكيد السلة بالكود مع إمكانية تطبيق كوبون"
+            "description": "تأكيد السلة بالكود بدون كوبونات (الكوبون على مستوى العناصر فقط). يعتمد المجموع النهائي على grand_total. يعيد حقول: paid_to_previous_debts, paid_to_current_order, new_debt, final_balance, excess_payment"
           }
         },
         {
@@ -1206,6 +1309,102 @@
               ]
             }
           }
+        },
+        {
+          "name": "Update Inquiry Staff Numbers",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numbers\": [\n    \"+90XXXXXXXXXX\",\n    \"+963XXXXXXXXX\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/inquiry-numbers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "inquiry-numbers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Support Staff Numbers",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numbers\": [\n    \"+90XXXXXXXXXX\",\n    \"+963XXXXXXXXX\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/support-numbers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "support-numbers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Bank Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bank_name\": \"Ziraat\",\n  \"account_holder\": \"الاسم الكامل\",\n  \"iban\": \"TRXXXXXXXXXXXXXXXXXXXX\",\n  \"account_number\": \"1234567890\",\n  \"branch\": \"Şube\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/settings/bank-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "settings",
+                "bank-account"
+              ]
+            }
+          }
         }
       ]
     },
@@ -1479,6 +1678,105 @@
               ]
             }
           }
+        },
+        {
+          "name": "Get Assigned Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/assigned",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "assigned"
+              ]
+            },
+            "description": "جلب جميع الكوبونات المسندة والصالحة للعميل"
+          }
+        },
+        {
+          "name": "Get Assigned Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/assigned",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "assigned"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Coupons (for user)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/products?product_id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "product_id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Cart Applicable Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/coupons/cart-applicable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "cart-applicable"
+              ]
+            }
+          }
         }
       ]
     },
@@ -1712,7 +2010,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"cart_code\": \"CART-20241205-00001\",\n    \"paid_amount\": 3000\n}"
+              "raw": "{\n  \"cart_code\": \"CART-20251208-00002\",\n  \"paid_amount\": 4000,\n  \"shipping_address\": \"دمشق - المزة - شارع 14\",\n  \"payment_method\": \"cod\",\n  \"currency\": \"TRY\",\n  \"customer_note\": \"ملاحظة من العميل\",\n  \"cart_note\": \"ملاحظة حول السلة\",\n  \"grand_total\": 3001\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
@@ -1726,7 +2024,7 @@
                 "confirm"
               ]
             },
-            "description": "تأكيد السلة مع حساب الديون. paid_amount = المبلغ المدفوع"
+            "description": "تأكيد السلة مع حساب الديون بدون كوبونات على مستوى السلة. الحقول: cart_code, paid_amount, shipping_address, payment_method, currency, customer_note, cart_note, grand_total. يعيد excess_payment = 0 افتراضياً إن لم توجد زيادة"
           }
         }
       ]
@@ -2382,6 +2680,29 @@
                 "reviews",
                 "1",
                 "reject"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📞 Support (Public)",
+      "item": [
+        {
+          "name": "Get Support Numbers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/numbers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "numbers"
               ]
             }
           }

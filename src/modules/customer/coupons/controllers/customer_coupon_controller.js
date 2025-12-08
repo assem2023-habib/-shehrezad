@@ -45,5 +45,37 @@ const validateCoupon = async (req, res) => {
 };
 
 module.exports = {
-  validateCoupon
+  validateCoupon,
+  getAssignedCoupons: async (req, res) => {
+    try {
+      const userId = req.user.user_id;
+      const coupons = await customerCouponService.getAssignedCoupons(userId);
+      return response.success(res, coupons);
+    } catch (error) {
+      console.error('Get Assigned Coupons Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب الكوبونات');
+    }
+  },
+  getProductCouponsForUser: async (req, res) => {
+    try {
+      const userId = req.user.user_id;
+      const { product_id } = req.query;
+      const pid = product_id ? parseInt(product_id) : null;
+      const coupons = await customerCouponService.getProductCouponsForUser(userId, pid);
+      return response.success(res, coupons);
+    } catch (error) {
+      console.error('Get Product Coupons Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب كوبونات المنتجات');
+    }
+  },
+  getCartApplicableCoupons: async (req, res) => {
+    try {
+      const userId = req.user.user_id;
+      const coupons = await customerCouponService.getCartApplicableCoupons(userId);
+      return response.success(res, coupons);
+    } catch (error) {
+      console.error('Get Cart Applicable Coupons Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب كوبونات السلة');
+    }
+  }
 };

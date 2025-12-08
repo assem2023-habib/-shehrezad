@@ -18,10 +18,22 @@ router.post('/add', cartController.addToCart);
 // عرض السلة
 router.get('/', cartController.getCart);
 
+// عناصر غير محجوزة
+router.get('/unlocked', cartController.getUnlockedCartItems);
+
+// عناصر محجوزة
+router.get('/locked', cartController.getLockedCartItems);
+
 // حذف عنصر
 router.delete('/remove/:item_id', cartController.removeFromCart);
 
 // تحديث كمية
 router.put('/update/:item_id', cartController.updateCartItem);
+
+// مسح السلة (يحذف العناصر غير المحجوزة فقط)
+router.delete('/clear', cartController.clearCart);
+
+// تعيين/تعديل أسماء المستفيدين لعنصر
+router.put('/beneficiaries/:item_id', cartController.setItemBeneficiaries);
 
 module.exports = router;

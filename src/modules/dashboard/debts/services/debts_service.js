@@ -7,14 +7,18 @@ const pool = require('../../../../config/dbconnect');
 /**
  * جلب رصيد الديون للعميل
  */
-const getCustomerDebtBalance = async (userId) => {
-  const result = await pool.query(`
-    SELECT 
-      COALESCE(SUM(remaining), 0) as total_debt
+const getCustomerDebtBalance = async (userId, currency = null) => {
+  let query = `
+    SELECT COALESCE(SUM(remaining), 0) as total_debt
     FROM customer_debts
     WHERE user_id = ? AND status != 'paid'
-  `, [userId]);
-
+  `;
+  const params = [userId];
+  if (currency) {
+    query += ' AND currency = ?';
+    params.push(currency);
+  }
+  const result = await pool.query(query, params);
   return parseFloat(result[0].total_debt) || 0;
 };
 
@@ -44,11 +48,11 @@ const getDebtHistory = async (userId) => {
 /**
  * إضافة دين جديد
  */
-const addDebt = async (userId, orderId, amount, description = null) => {
+const addDebt = async (userId, orderId, amount, description = null, currency = 'TRY') => {
   const result = await pool.query(`
-    INSERT INTO customer_debts (user_id, order_id, amount, remaining, description)
-    VALUES (?, ?, ?, ?, ?)
-  `, [userId, orderId, amount, amount, description || `دين من طلب رقم ${orderId}`]);
+    INSERT INTO customer_debts (user_id, order_id, amount, remaining, description, currency)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `, [userId, orderId, amount, amount, description || `دين من طلب رقم ${orderId}`, currency]);
 
   return result.insertId;
 };
@@ -98,13 +102,16 @@ const recordPayment = async (debtId, amount) => {
 /**
  * تسجيل دفعة على رصيد العميل (يدفع من أقدم الديون)
  */
-const recordPaymentToBalance = async (userId, amount) => {
+const recordPaymentToBalance = async (userId, amount, currency = null) => {
   // جلب الديون المستحقة مرتبة من الأقدم
-  const debts = await pool.query(`
-    SELECT * FROM customer_debts 
-    WHERE user_id = ? AND status != 'paid'
-    ORDER BY created_at ASC
-  `, [userId]);
+  let q = `SELECT * FROM customer_debts WHERE user_id = ? AND status != 'paid'`;
+  const params = [userId];
+  if (currency) {
+    q += ' AND currency = ?';
+    params.push(currency);
+  }
+  q += ' ORDER BY created_at ASC';
+  const debts = await pool.query(q, params);
 
   let remainingPayment = parseFloat(amount);
   const payments = [];
@@ -121,7 +128,7 @@ const recordPaymentToBalance = async (userId, amount) => {
     remainingPayment -= paymentForThisDebt;
   }
 
-  const newBalance = await getCustomerDebtBalance(userId);
+  const newBalance = await getCustomerDebtBalance(userId, currency);
 
   return {
     amount_paid: parseFloat(amount) - remainingPayment,
@@ -154,11 +161,25 @@ const getAllCustomersWithDebts = async () => {
   return customers;
 };
 
+/**
+ * ملخص ديون العميل بحسب العملة
+ */
+const getDebtsByCurrency = async (userId) => {
+  const rows = await pool.query(`
+    SELECT currency, COALESCE(SUM(remaining), 0) as amount
+    FROM customer_debts
+    WHERE user_id = ? AND status != 'paid'
+    GROUP BY currency
+  `, [userId]);
+  return rows.map(r => ({ currency: r.currency || 'TRY', amount: parseFloat(r.amount) }));
+};
+
 module.exports = {
   getCustomerDebtBalance,
   getDebtHistory,
   addDebt,
   recordPayment,
   recordPaymentToBalance,
-  getAllCustomersWithDebts
+  getAllCustomersWithDebts,
+  getDebtsByCurrency
 };

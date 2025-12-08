@@ -14,4 +14,13 @@ router.use(checkRole(['customer']));
 // التحقق من الكوبون
 router.post('/validate', customerCouponController.validateCoupon);
 
+// جلب الكوبونات المسندة للعميل
+router.get('/assigned', customerCouponController.getAssignedCoupons);
+
+// جلب كوبونات المنتجات للمستخدم (اختياري product_id)
+router.get('/products', customerCouponController.getProductCouponsForUser);
+
+// جلب الكوبونات القابلة للتطبيق على سلة المستخدم
+router.get('/cart-applicable', customerCouponController.getCartApplicableCoupons);
+
 module.exports = router;

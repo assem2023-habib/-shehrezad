@@ -5,7 +5,7 @@
 
 const pool = require('../../../../config/dbconnect');
 const settingsService = require('../../../../config/settings_service');
-const { CART_STATUS, SETTING_KEYS, HTTP_STATUS } = require('../../../../config/constants');
+const { CART_STATUS, SETTING_KEYS, HTTP_STATUS, ORDER_STATUS } = require('../../../../config/constants');
 
 /**
  * توليد كود فريد للسلة
@@ -170,6 +170,11 @@ const getItemDetails = async (itemId) => {
   const lockSeconds = lockMinutes * 60;
   const remainingSeconds = Math.max(0, lockSeconds - item.seconds_since_added);
 
+  const beneficiaries = await pool.query(
+    'SELECT beneficiary_name FROM cart_item_beneficiaries WHERE item_id = ? ORDER BY beneficiary_id',
+    [itemId]
+  );
+
   return {
     item_id: item.item_id,
     product_id: item.product_id,
@@ -183,7 +188,8 @@ const getItemDetails = async (itemId) => {
     quantity: item.quantity,
     is_locked: item.is_locked === 1,
     added_at: item.added_at,
-    lock_time_remaining: remainingSeconds
+    lock_time_remaining: remainingSeconds,
+    beneficiaries: beneficiaries.map(b => b.beneficiary_name)
   };
 };
 
@@ -224,6 +230,19 @@ const getCart = async (userId) => {
 
   const lockSeconds = lockMinutes * 60;
 
+  const itemIds = items.map(i => i.item_id);
+  let beneficiariesMap = {};
+  if (itemIds.length) {
+    const beneficiariesMapRows = await pool.query(
+      'SELECT item_id, beneficiary_name FROM cart_item_beneficiaries WHERE item_id IN (?)',
+      [itemIds]
+    );
+    for (const r of beneficiariesMapRows) {
+      if (!beneficiariesMap[r.item_id]) beneficiariesMap[r.item_id] = [];
+      beneficiariesMap[r.item_id].push(r.beneficiary_name);
+    }
+  }
+
   return {
     cart: {
       cart_id: cart[0].cart_id,
@@ -248,7 +267,8 @@ const getCart = async (userId) => {
       price_syp: item.price_syp,
       is_locked: item.is_locked === 1,
       added_at: item.added_at,
-      lock_time_remaining: Math.max(0, lockSeconds - item.seconds_since_added)
+      lock_time_remaining: Math.max(0, lockSeconds - item.seconds_since_added),
+      beneficiaries: beneficiariesMap[item.item_id] || []
     }))
   };
 };
@@ -334,11 +354,85 @@ const updateItem = async (userId, itemId, quantity) => {
   return { ...itemDetails, cart_code: item[0].cart_code };
 };
 
+const getUnlockedItems = async (userId) => {
+  const orders = await pool.query(`
+    SELECT 
+      o.order_id,
+      o.status,
+      o.total_amount,
+      o.discount_amount,
+      o.payment_method,
+      o.currency,
+      o.shipping_address,
+      o.created_at,
+      i.invoice_number,
+      (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.order_id) AS items_count
+    FROM orders o
+    LEFT JOIN invoices i ON i.order_id = o.order_id
+    WHERE o.user_id = ? AND o.status NOT IN (?, ?)
+    ORDER BY o.created_at DESC
+  `, [userId, ORDER_STATUS.CANCELLED, ORDER_STATUS.DELIVERED]);
+  return { orders };
+};
+
+const getLockedItems = async (userId) => {
+  const orders = await pool.query(`
+    SELECT 
+      o.order_id,
+      o.status,
+      o.total_amount,
+      o.discount_amount,
+      o.payment_method,
+      o.currency,
+      o.shipping_address,
+      o.created_at,
+      i.invoice_number,
+      (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.order_id) AS items_count
+    FROM orders o
+    LEFT JOIN invoices i ON i.order_id = o.order_id
+    WHERE o.user_id = ? AND o.status = ?
+    ORDER BY o.created_at DESC
+  `, [userId, ORDER_STATUS.DELIVERED]);
+  return { orders };
+};
+
 module.exports = {
   getOrCreateCart,
   addItem,
   getCart,
   removeItem,
   updateItem,
-  getItemDetails
+  getItemDetails,
+  clearCart: async (userId) => {
+    const cart = await pool.query(
+      'SELECT cart_id FROM carts WHERE user_id = ? AND status = ?',
+      [userId, CART_STATUS.ACTIVE]
+    );
+    if (!cart.length) {
+      const error = new Error('لا توجد سلة فعالة');
+      error.status = HTTP_STATUS.NOT_FOUND;
+      throw error;
+    }
+    await pool.query('DELETE FROM cart_items WHERE cart_id = ? AND is_locked = 0', [cart[0].cart_id]);
+    return true;
+  },
+  setItemBeneficiaries: async (userId, itemId, names = []) => {
+    const item = await pool.query(
+      'SELECT ci.item_id, c.user_id FROM cart_items ci JOIN carts c ON ci.cart_id = c.cart_id WHERE ci.item_id = ? AND c.user_id = ?',
+      [itemId, userId]
+    );
+    if (!item.length) {
+      const error = new Error('العنصر غير موجود');
+      error.status = HTTP_STATUS.NOT_FOUND;
+      throw error;
+    }
+    await pool.query('DELETE FROM cart_item_beneficiaries WHERE item_id = ?', [itemId]);
+    const cleaned = (Array.isArray(names) ? names : []).map(n => String(n).trim()).filter(n => n.length > 0);
+    for (const name of cleaned) {
+      await pool.query('INSERT INTO cart_item_beneficiaries (item_id, beneficiary_name) VALUES (?, ?)', [itemId, name]);
+    }
+    return await getItemDetails(itemId);
+  },
+  getUnlockedItems,
+  getLockedItems
 };

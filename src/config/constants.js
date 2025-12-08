@@ -21,10 +21,11 @@ const CART_STATUS = {
 
 // حالات الطلب
 const ORDER_STATUS = {
+  UNPAID: 'unpaid',
   PENDING: 'pending',
   PROCESSING: 'processing',
   SHIPPED: 'shipped',
-  DELIVERED: 'delivered',
+  DELIVERED: 'completed',
   CANCELLED: 'cancelled'
 };
 
@@ -56,7 +57,10 @@ const SETTING_KEYS = {
   ITEM_LOCK_MINUTES: 'item_lock_minutes',
   CART_REMINDER_DAYS: 'cart_reminder_days',
   MAX_CART_ITEMS: 'max_cart_items',
-  MAX_IMAGES_PER_PRODUCT: 'max_images_per_product'
+  MAX_IMAGES_PER_PRODUCT: 'max_images_per_product',
+  INQUIRY_STAFF_NUMBERS: 'inquiry_staff_numbers',
+  SUPPORT_STAFF_NUMBERS: 'support_staff_numbers',
+  BANK_ACCOUNT: 'bank_account'
 };
 
 // القيم الافتراضية للإعدادات
@@ -64,7 +68,10 @@ const DEFAULT_SETTINGS = {
   [SETTING_KEYS.ITEM_LOCK_MINUTES]: 10,
   [SETTING_KEYS.CART_REMINDER_DAYS]: 15,
   [SETTING_KEYS.MAX_CART_ITEMS]: 50,
-  [SETTING_KEYS.MAX_IMAGES_PER_PRODUCT]: 20
+  [SETTING_KEYS.MAX_IMAGES_PER_PRODUCT]: 20,
+  [SETTING_KEYS.INQUIRY_STAFF_NUMBERS]: '[]',
+  [SETTING_KEYS.SUPPORT_STAFF_NUMBERS]: '[]',
+  [SETTING_KEYS.BANK_ACCOUNT]: '{}'
 };
 
 // رموز الاستجابة

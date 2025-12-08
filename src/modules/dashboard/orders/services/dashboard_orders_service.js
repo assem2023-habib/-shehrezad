@@ -3,6 +3,7 @@
  */
 
 const pool = require('../../../../config/dbconnect');
+const { ORDER_STATUS } = require('../../../../config/constants');
 
 /**
  * جلب جميع الطلبات مع الفلترة
@@ -130,8 +131,7 @@ const getOrderById = async (orderId) => {
  * تحديث حالة الطلب
  */
 const updateOrderStatus = async (orderId, status) => {
-  const allowedStatus = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
-  
+  const allowedStatus = Object.values(ORDER_STATUS);
   if (!allowedStatus.includes(status)) {
     throw new Error('حالة الطلب غير صالحة');
   }
@@ -149,12 +149,12 @@ const updateOrderStatus = async (orderId, status) => {
   const currentStatus = currentOrder[0].status;
 
   // إذا كان الطلب ملغياً بالفعل، لا يمكن تغيير حالته
-  if (currentStatus === 'cancelled') {
+  if (currentStatus === ORDER_STATUS.CANCELLED) {
     throw new Error('لا يمكن تغيير حالة طلب ملغي');
   }
 
   // إذا تم إلغاء الطلب، أعد المخزون
-  if (status === 'cancelled' && currentStatus !== 'cancelled') {
+  if (status === ORDER_STATUS.CANCELLED && currentStatus !== ORDER_STATUS.CANCELLED) {
     await restoreStock(orderId);
   }
 

@@ -15,7 +15,7 @@ const pool = require('../../../../config/dbconnect');
 const validateCoupon = async (code, userId, totalAmount, cartItems = []) => {
   // 1. جلب الكوبون
   const coupons = await pool.query('SELECT * FROM coupons WHERE code = ?', [code]);
-  
+
   if (!coupons.length) {
     throw new Error('الكوبون غير موجود');
   }
@@ -100,15 +100,99 @@ const validateCoupon = async (code, userId, totalAmount, cartItems = []) => {
     discountAmount = totalAmount;
   }
 
-  return {
-    valid: true,
+  const couponObj = {
     coupon_id: coupon.coupon_id,
     code: coupon.code,
+    discount_type: coupon.discount_type,
+    discount_value: coupon.discount_value,
+    max_discount_amount: coupon.max_discount_amount,
+    min_purchase_amount: coupon.min_purchase_amount,
+    usage_limit: coupon.usage_limit,
+    used_count: coupon.used_count,
+    start_date: coupon.start_date,
+    end_date: coupon.end_date,
+    target_audience: coupon.target_audience,
+    target_products_type: coupon.target_products_type
+  };
+
+  return {
+    valid: true,
+    coupon: couponObj,
     discount_amount: parseFloat(discountAmount.toFixed(2)),
     final_total: parseFloat((totalAmount - discountAmount).toFixed(2))
   };
 };
 
 module.exports = {
-  validateCoupon
+  validateCoupon,
+  getAssignedCoupons: async (userId) => {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const rows = await pool.query(`
+      SELECT c.*
+      FROM coupons c
+      JOIN coupon_customers cc ON cc.coupon_id = c.coupon_id
+      WHERE cc.user_id = ?
+        AND c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= ?)
+        AND (c.end_date IS NULL OR c.end_date >= ?)
+        AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+      ORDER BY c.end_date IS NULL DESC, c.end_date ASC
+    `, [userId, now, now]);
+    return rows;
+  },
+  getProductCouponsForUser: async (userId, productId = null) => {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    if (productId) {
+      const rows = await pool.query(`
+        SELECT DISTINCT c.*
+        FROM coupons c
+        LEFT JOIN coupon_customers cc ON cc.coupon_id = c.coupon_id AND cc.user_id = ?
+        LEFT JOIN coupon_products cp ON cp.coupon_id = c.coupon_id
+        WHERE c.status = 'active'
+          AND (c.start_date IS NULL OR c.start_date <= ?)
+          AND (c.end_date IS NULL OR c.end_date >= ?)
+          AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+          AND (c.target_audience = 'all' OR cc.user_id IS NOT NULL)
+          AND (c.target_products_type = 'all' OR cp.product_id = ?)
+        ORDER BY c.end_date IS NULL DESC, c.end_date ASC
+      `, [userId, now, now, productId]);
+      return rows;
+    } else {
+      const rows = await pool.query(`
+        SELECT DISTINCT c.*
+        FROM coupons c
+        LEFT JOIN coupon_customers cc ON cc.coupon_id = c.coupon_id AND cc.user_id = ?
+        WHERE c.status = 'active'
+          AND (c.start_date IS NULL OR c.start_date <= ?)
+          AND (c.end_date IS NULL OR c.end_date >= ?)
+          AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+          AND (c.target_audience = 'all' OR cc.user_id IS NOT NULL)
+        ORDER BY c.end_date IS NULL DESC, c.end_date ASC
+      `, [userId, now, now]);
+      return rows;
+    }
+  },
+  getCartApplicableCoupons: async (userId) => {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const carts = await pool.query('SELECT cart_id FROM carts WHERE user_id = ? AND status = "active"', [userId]);
+    if (!carts.length) return [];
+    const cartId = carts[0].cart_id;
+    const items = await pool.query('SELECT DISTINCT product_id FROM cart_items WHERE cart_id = ?', [cartId]);
+    if (!items.length) return [];
+    const productIds = items.map(i => i.product_id);
+    const rows = await pool.query(`
+      SELECT DISTINCT c.*
+      FROM coupons c
+      LEFT JOIN coupon_customers cc ON cc.coupon_id = c.coupon_id AND cc.user_id = ?
+      LEFT JOIN coupon_products cp ON cp.coupon_id = c.coupon_id
+      WHERE c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= ?)
+        AND (c.end_date IS NULL OR c.end_date >= ?)
+        AND (c.usage_limit IS NULL OR c.used_count < c.usage_limit)
+        AND (c.target_audience = 'all' OR cc.user_id IS NOT NULL)
+        AND (c.target_products_type = 'all' OR cp.product_id IN (?))
+      ORDER BY c.end_date IS NULL DESC, c.end_date ASC
+    `, [userId, now, now, productIds]);
+    return rows;
+  }
 };

@@ -6,7 +6,7 @@
 const cron = require('node-cron');
 const pool = require('./dbconnect');
 const settingsService = require('./settings_service');
-const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS } = require('./constants');
+const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS, ORDER_STATUS } = require('./constants');
 const admin = require('../firebase');
 
 /**
@@ -141,13 +141,11 @@ const deleteStaleOrders = async () => {
   try {
     const reminderDays = await settingsService.get(SETTING_KEYS.CART_REMINDER_DAYS);
 
-    // جلب الطلبات المعلقة القديمة
-    const staleOrders = await pool.query(`
-      SELECT o.order_id
-      FROM orders o
-      WHERE o.status = 'pending'
-        AND DATEDIFF(NOW(), o.created_at) >= ?
-    `, [reminderDays]);
+    // جلب الطلبات غير المدفوعة/المعلقة القديمة
+    const staleOrders = await pool.query(
+      'SELECT o.order_id FROM orders o WHERE o.status IN (?, ?) AND DATEDIFF(NOW(), o.created_at) >= ?',
+      [ORDER_STATUS.UNPAID, ORDER_STATUS.PENDING, reminderDays]
+    );
 
     for (const order of staleOrders) {
       // جلب عناصر الطلب

@@ -98,6 +98,9 @@ app.use('/api/coupons', require('./modules/customer/coupons/routes/customer_coup
 // الملف الشخصي (العميل)
 app.use('/api/profile', require('./modules/customer/profile/routes/profile_routes'));
 
+// الدعم (عام)
+app.use('/api/support', require('./modules/support/routes/support_routes'));
+
 
 // =====================
 // 404 Handler
