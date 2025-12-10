@@ -154,5 +154,40 @@ module.exports = {
   setItemBeneficiaries
   ,
   getUnlockedCartItems,
-  getLockedCartItems
+  getLockedCartItems,
+  getCartItem: async (req, res) => {
+    try {
+      const { item_id } = req.params;
+      const item = await cartService.getItemDetails(parseInt(item_id));
+      if (!item) {
+        return response.notFound(res, 'العنصر غير موجود');
+      }
+      return response.success(res, item);
+    } catch (error) {
+      console.error('Get Cart Item Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب عنصر السلة');
+    }
+  },
+  applyCoupon: async (req, res) => {
+    try {
+      const { code, item_id } = req.body;
+      if (!code) {
+        return response.badRequest(res, 'يرجى إدخال رمز الكوبون');
+      }
+      const result = await cartService.applyCoupon(req.user.user_id, code, item_id ? parseInt(item_id) : null);
+      return response.created(res, result, 'تم تطبيق الكوبون');
+    } catch (error) {
+      console.error('Apply Coupon Error:', error);
+      return response.handleError(res, error, 'فشل تطبيق الكوبون');
+    }
+  },
+  getAppliedCoupons: async (req, res) => {
+    try {
+      const result = await cartService.getAppliedCoupons(req.user.user_id);
+      return response.success(res, result);
+    } catch (error) {
+      console.error('Get Applied Coupons Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب الكوبونات المطبقة');
+    }
+  }
 };

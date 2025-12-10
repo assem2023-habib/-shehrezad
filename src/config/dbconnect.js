@@ -1,4 +1,4 @@
-require('dotenv').config();
+// env variables are loaded by the entrypoint
 const mysql = require('mysql');
 const util = require('util');
 

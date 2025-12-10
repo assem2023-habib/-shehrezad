@@ -80,20 +80,7 @@ const addItem = async (userId, itemData) => {
     throw error;
   }
 
-  // التحقق من الحد الأقصى للعناصر
-  const maxItems = await settingsService.get(SETTING_KEYS.MAX_CART_ITEMS);
   const cart = await getOrCreateCart(userId);
-
-  const currentItems = await pool.query(
-    'SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?',
-    [cart.cart_id]
-  );
-
-  if (currentItems[0].count >= maxItems) {
-    const error = new Error(`تجاوزت الحد الأقصى للعناصر (${maxItems})`);
-    error.status = HTTP_STATUS.BAD_REQUEST;
-    throw error;
-  }
 
   // التحقق من عدم وجود نفس العنصر
   const existingItem = await pool.query(
@@ -103,26 +90,29 @@ const addItem = async (userId, itemData) => {
   );
 
   if (existingItem.length > 0) {
-    // إذا كان مقفلاً، أضف عنصر جديد
-    if (existingItem[0].is_locked) {
-      // إضافة عنصر جديد
-    } else {
-      // تحديث الكمية
-      const newQuantity = existingItem[0].quantity + quantity;
-      if (newQuantity > sizeInfo[0].quantity) {
-        const error = new Error('الكمية المطلوبة غير متوفرة');
-        error.status = HTTP_STATUS.BAD_REQUEST;
-        throw error;
-      }
-
-      await pool.query(
-        'UPDATE cart_items SET quantity = ? WHERE item_id = ?',
-        [newQuantity, existingItem[0].item_id]
-      );
-
-      const itemDetails = await getItemDetails(existingItem[0].item_id);
-      return { ...itemDetails, cart_code: cart.cart_code };
+    const newQuantity = existingItem[0].quantity + quantity;
+    if (newQuantity > sizeInfo[0].quantity) {
+      const error = new Error('الكمية المطلوبة غير متوفرة');
+      error.status = HTTP_STATUS.BAD_REQUEST;
+      throw error;
     }
+    await pool.query(
+      'UPDATE cart_items SET quantity = ? WHERE item_id = ?',
+      [newQuantity, existingItem[0].item_id]
+    );
+    const itemDetails = await getItemDetails(existingItem[0].item_id);
+    return { ...itemDetails, cart_code: cart.cart_code };
+  }
+
+  const maxItems = await settingsService.get(SETTING_KEYS.MAX_CART_ITEMS);
+  const currentItems = await pool.query(
+    'SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?',
+    [cart.cart_id]
+  );
+  if (currentItems[0].count >= maxItems) {
+    const error = new Error(`تجاوزت الحد الأقصى للعناصر (${maxItems})`);
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    throw error;
   }
 
   // إضافة عنصر جديد
@@ -243,6 +233,32 @@ const getCart = async (userId) => {
     }
   }
 
+  const appliedCartCoupons = await pool.query(
+    'SELECT cac.id, c.code FROM cart_applied_coupons cac JOIN coupons c ON cac.coupon_id = c.coupon_id WHERE cac.cart_id = ? AND cac.item_id IS NULL',
+    [cart[0].cart_id]
+  );
+  const appliedItemCouponsRows = await pool.query(
+    'SELECT cac.item_id, c.code, c.discount_type, c.discount_value, c.max_discount_amount, c.min_purchase_amount FROM cart_applied_coupons cac JOIN coupons c ON cac.coupon_id = c.coupon_id WHERE cac.cart_id = ? AND cac.item_id IS NOT NULL',
+    [cart[0].cart_id]
+  );
+  const itemCouponsMap = {};
+  for (const r of appliedItemCouponsRows) {
+    if (!itemCouponsMap[r.item_id]) itemCouponsMap[r.item_id] = [];
+    itemCouponsMap[r.item_id].push({
+      code: r.code,
+      discount_type: r.discount_type,
+      discount_value: r.discount_value,
+      max_discount_amount: r.max_discount_amount,
+      min_purchase_amount: r.min_purchase_amount
+    });
+  }
+
+  const userRows = await pool.query(
+    'SELECT user_id, full_name, phone, email, customer_code, invoice_image FROM users WHERE user_id = ? LIMIT 1',
+    [cart[0].user_id]
+  );
+  const customer = userRows.length ? userRows[0] : null;
+
   return {
     cart: {
       cart_id: cart[0].cart_id,
@@ -250,26 +266,74 @@ const getCart = async (userId) => {
       user_id: cart[0].user_id,
       status: cart[0].status,
       created_at: cart[0].created_at,
-      updated_at: cart[0].updated_at
+      updated_at: cart[0].updated_at,
+      applied_coupons: appliedCartCoupons.map(r => r.code)
     },
     cart_code: cart[0].cart_code,
-    items: items.map(item => ({
-      item_id: item.item_id,
-      product_id: item.product_id,
-      product_name: item.product_name,
-      product_code: item.product_code,
-      color_name: item.color_name,
-      color_value: item.color_value,
-      size_value: item.size_value,
-      quantity: item.quantity,
-      price_usd: item.price_usd,
-      price_try: item.price_try,
-      price_syp: item.price_syp,
-      is_locked: item.is_locked === 1,
-      added_at: item.added_at,
-      lock_time_remaining: Math.max(0, lockSeconds - item.seconds_since_added),
-      beneficiaries: beneficiariesMap[item.item_id] || []
-    }))
+    customer,
+    items: items.map(item => {
+      const coupons = itemCouponsMap[item.item_id] || [];
+      const priceUsd = parseFloat(item.price_usd);
+      const priceTry = parseFloat(item.price_try);
+      const priceSyp = parseFloat(item.price_syp);
+      const detailedCoupons = coupons.map(c => {
+        let discUsd = 0, discTry = 0, discSyp = 0;
+        if (c.discount_type === 'percentage') {
+          discUsd = priceUsd * (parseFloat(c.discount_value) / 100);
+          discTry = priceTry * (parseFloat(c.discount_value) / 100);
+          discSyp = priceSyp * (parseFloat(c.discount_value) / 100);
+        } else if (c.discount_type === 'fixed') {
+          const v = parseFloat(c.discount_value);
+          discUsd = Math.min(priceUsd, v);
+          discTry = Math.min(priceTry, v);
+          discSyp = Math.min(priceSyp, v);
+        }
+        if (c.max_discount_amount != null) {
+          const cap = parseFloat(c.max_discount_amount);
+          discUsd = Math.min(discUsd, cap);
+          discTry = Math.min(discTry, cap);
+          discSyp = Math.min(discSyp, cap);
+        }
+        const discountedUsd = Math.max(0, priceUsd - discUsd);
+        const discountedTry = Math.max(0, priceTry - discTry);
+        const discountedSyp = Math.max(0, priceSyp - discSyp);
+        return {
+          code: c.code,
+          discount_type: c.discount_type,
+          discount_value: c.discount_value,
+          max_discount_amount: c.max_discount_amount,
+          min_purchase_amount: c.min_purchase_amount,
+          discount_amounts: {
+            usd: Number(discUsd.toFixed(2)),
+            try: Number(discTry.toFixed(2)),
+            syp: Number(discSyp.toFixed(2))
+          },
+          discounted_prices: {
+            usd: Number(discountedUsd.toFixed(2)),
+            try: Number(discountedTry.toFixed(2)),
+            syp: Number(discountedSyp.toFixed(2))
+          }
+        };
+      });
+      return {
+        item_id: item.item_id,
+        product_id: item.product_id,
+        product_name: item.product_name,
+        product_code: item.product_code,
+        color_name: item.color_name,
+        color_value: item.color_value,
+        size_value: item.size_value,
+        quantity: item.quantity,
+        price_usd: item.price_usd,
+        price_try: item.price_try,
+        price_syp: item.price_syp,
+        is_locked: item.is_locked === 1,
+        added_at: item.added_at,
+        lock_time_remaining: Math.max(0, lockSeconds - item.seconds_since_added),
+        beneficiaries: beneficiariesMap[item.item_id] || [],
+        customer_coupons: detailedCoupons
+      };
+    })
   };
 };
 
@@ -434,5 +498,79 @@ module.exports = {
     return await getItemDetails(itemId);
   },
   getUnlockedItems,
-  getLockedItems
+  getLockedItems,
+  applyCoupon: async (userId, code, itemId = null) => {
+    const cart = await pool.query('SELECT cart_id FROM carts WHERE user_id = ? AND status = ?', [userId, CART_STATUS.ACTIVE]);
+    if (!cart.length) {
+      const error = new Error('لا توجد سلة فعالة');
+      error.status = HTTP_STATUS.NOT_FOUND;
+      throw error;
+    }
+    const couponRows = await pool.query(
+      `SELECT * FROM coupons 
+       WHERE code = ? 
+         AND status = 'active'
+         AND (start_date IS NULL OR start_date <= NOW())
+         AND (end_date IS NULL OR end_date >= NOW())
+         AND (usage_limit IS NULL OR used_count < usage_limit)`,
+      [code]
+    );
+    if (!couponRows.length) {
+      const error = new Error('الكوبون غير صالح');
+      error.status = HTTP_STATUS.BAD_REQUEST;
+      throw error;
+    }
+    const coupon = couponRows[0];
+    if (coupon.target_audience === 'specific_users') {
+      const allowed = await pool.query('SELECT 1 FROM coupon_customers WHERE coupon_id = ? AND user_id = ?', [coupon.coupon_id, userId]);
+      if (!allowed.length) {
+        const error = new Error('الكوبون غير مسموح لهذا المستخدم');
+        error.status = HTTP_STATUS.FORBIDDEN;
+        throw error;
+      }
+    }
+    if (itemId) {
+      const itemRows = await pool.query('SELECT ci.item_id, ci.product_id, ci.cart_id FROM cart_items ci JOIN carts c ON ci.cart_id = c.cart_id WHERE ci.item_id = ? AND c.user_id = ? AND c.status = ?', [itemId, userId, CART_STATUS.ACTIVE]);
+      if (!itemRows.length) {
+        const error = new Error('العنصر غير موجود في سلة المستخدم');
+        error.status = HTTP_STATUS.NOT_FOUND;
+        throw error;
+      }
+      if (coupon.target_products_type === 'specific_products') {
+        const prodAllowed = await pool.query('SELECT 1 FROM coupon_products WHERE coupon_id = ? AND product_id = ?', [coupon.coupon_id, itemRows[0].product_id]);
+        if (!prodAllowed.length) {
+          const error = new Error('الكوبون غير قابل للتطبيق على هذا المنتج');
+          error.status = HTTP_STATUS.BAD_REQUEST;
+          throw error;
+        }
+      }
+      const exists = await pool.query('SELECT id FROM cart_applied_coupons WHERE cart_id = ? AND item_id = ? AND coupon_id = ?', [itemRows[0].cart_id, itemId, coupon.coupon_id]);
+      if (exists.length) {
+        return { applied: true, duplicate: true, scope: 'item', code };
+      }
+      await pool.query('INSERT INTO cart_applied_coupons (cart_id, item_id, coupon_id, user_id) VALUES (?, ?, ?, ?)', [itemRows[0].cart_id, itemId, coupon.coupon_id, userId]);
+      return { applied: true, scope: 'item', code };
+    } else {
+      const exists = await pool.query('SELECT id FROM cart_applied_coupons WHERE cart_id = ? AND item_id IS NULL AND coupon_id = ?', [cart[0].cart_id, coupon.coupon_id]);
+      if (exists.length) {
+        return { applied: true, duplicate: true, scope: 'cart', code };
+      }
+      await pool.query('INSERT INTO cart_applied_coupons (cart_id, item_id, coupon_id, user_id) VALUES (?, NULL, ?, ?)', [cart[0].cart_id, coupon.coupon_id, userId]);
+      return { applied: true, scope: 'cart', code };
+    }
+  },
+  getAppliedCoupons: async (userId) => {
+    const cart = await pool.query('SELECT cart_id FROM carts WHERE user_id = ? AND status = ?', [userId, CART_STATUS.ACTIVE]);
+    if (!cart.length) return { cart_coupons: [], items: [] };
+    const cartCoupons = await pool.query('SELECT c.code FROM cart_applied_coupons cac JOIN coupons c ON cac.coupon_id = c.coupon_id WHERE cac.cart_id = ? AND cac.item_id IS NULL', [cart[0].cart_id]);
+    const itemCoupons = await pool.query('SELECT cac.item_id, c.code FROM cart_applied_coupons cac JOIN coupons c ON cac.coupon_id = c.coupon_id WHERE cac.cart_id = ? AND cac.item_id IS NOT NULL', [cart[0].cart_id]);
+    return {
+      cart_coupons: cartCoupons.map(r => r.code),
+      items: itemCoupons.reduce((acc, r) => {
+        const found = acc.find(x => x.item_id === r.item_id);
+        if (found) found.codes.push(r.code); else acc.push({ item_id: r.item_id, codes: [r.code] });
+        return acc;
+      }, [])
+    };
+  }
 };

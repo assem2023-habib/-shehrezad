@@ -15,6 +15,7 @@ router.use(checkRole(['super_admin']));
 router.post('/', couponController.createCoupon);
 router.get('/', couponController.getAllCoupons);
 router.get('/:id', couponController.getCouponById);
+router.put('/:id', couponController.updateCoupon);
 router.put('/:id/status', couponController.toggleStatus);
 router.delete('/:id', couponController.deleteCoupon);
 

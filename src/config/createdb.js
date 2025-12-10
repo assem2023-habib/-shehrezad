@@ -238,7 +238,7 @@ async function setupDatabase() {
         order_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         total_amount DECIMAL(10, 2) NOT NULL,
-        status ENUM('unpaid', 'pending', 'processing', 'shipped', 'completed', 'cancelled') DEFAULT 'unpaid',
+        status ENUM('unpaid', 'paid', 'pending', 'processing', 'shipped', 'completed', 'cancelled') DEFAULT 'unpaid',
         shipping_address TEXT,
         payment_method ENUM('cod', 'online') DEFAULT 'cod',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -473,13 +473,29 @@ async function setupDatabase() {
 
     // تحديث حالة الطلب لإضافة UNPAID كقيمة افتراضية وموجودة ضمن ENUM
     try {
-      await query("ALTER TABLE orders MODIFY COLUMN status ENUM('unpaid','pending','processing','shipped','completed','cancelled') DEFAULT 'unpaid'");
+      await query("ALTER TABLE orders MODIFY COLUMN status ENUM('unpaid','paid','pending','processing','shipped','completed','cancelled') DEFAULT 'unpaid'");
       console.log("✅ Updated orders.status ENUM to include 'unpaid' with default");
     } catch (e) {
       if (!e.message.includes("Duplicate column name") && !e.message.includes("DATA TYPE")) {
         console.log("ℹ️ Note on orders status enum: " + e.message);
       }
     }
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS cart_applied_coupons (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        cart_id INT NOT NULL,
+        item_id INT NULL,
+        coupon_id INT NOT NULL,
+        user_id INT NOT NULL,
+        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (cart_id) REFERENCES carts(cart_id) ON DELETE CASCADE,
+        FOREIGN KEY (item_id) REFERENCES cart_items(item_id) ON DELETE CASCADE,
+        FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+      )
+    `);
+    console.log("✅ Table 'cart_applied_coupons' created");
 
     // إضافة حقل العملة لجدول ديون العملاء
     try {

@@ -65,5 +65,26 @@ const updateOrderStatus = async (req, res) => {
 module.exports = {
   getAllOrders,
   getOrderById,
-  updateOrderStatus
+  updateOrderStatus,
+  searchOrders: async (req, res) => {
+    try {
+      const { order_id, invoice_number, customer_code } = req.query;
+      const result = await dashboardOrdersService.searchOrders({ order_id, invoice_number, customer_code });
+      return response.success(res, result);
+    } catch (error) {
+      console.error('Search Orders Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء البحث عن الطلبات');
+    }
+  },
+  getOrderItem: async (req, res) => {
+    try {
+      const { order_id, item_id } = req.params;
+      const item = await dashboardOrdersService.getOrderItemDetails(parseInt(order_id), parseInt(item_id));
+      if (!item) return response.notFound(res, 'العنصر غير موجود');
+      return response.success(res, item);
+    } catch (error) {
+      console.error('Get Order Item Error:', error);
+      return response.serverError(res, 'حدث خطأ أثناء جلب عنصر الطلب');
+    }
+  }
 };

@@ -22,6 +22,7 @@ const CART_STATUS = {
 // حالات الطلب
 const ORDER_STATUS = {
   UNPAID: 'unpaid',
+  PAID: 'paid',
   PENDING: 'pending',
   PROCESSING: 'processing',
   SHIPPED: 'shipped',

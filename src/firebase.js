@@ -1,15 +1,23 @@
-const admin = require("firebase-admin");
 const path = require("path");
 
-// قراءة المسار من .env
-const serviceAccountPath = process.env.FCM_SERVICE_ACCOUNT_JSON_PATH;
+let adminInstance = null;
 
-// تحميل ملف JSON
-const serviceAccount = require(path.resolve(serviceAccountPath));
+const getAdmin = async () => {
+  if (adminInstance) return adminInstance;
 
-// تهيئة Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+  const { default: admin } = await import('firebase-admin');
 
-module.exports = admin;
+  const serviceAccountPath = process.env.FCM_SERVICE_ACCOUNT_JSON_PATH;
+  const serviceAccount = require(path.resolve(serviceAccountPath));
+
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  } catch (e) {}
+
+  adminInstance = admin;
+  return adminInstance;
+};
+
+module.exports = { getAdmin };

@@ -1,4 +1,4 @@
-require('dotenv').config();
+// env variables are loaded in server.js
 
 const express = require('express');
 const cors = require('cors');

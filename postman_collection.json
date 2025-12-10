@@ -118,6 +118,38 @@
           }
         },
         {
+          "name": "Update Coupon",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"discount_value\": 60,\n    \"min_purchase_amount\": 300,\n    \"usage_limit\": 100,\n    \"target_audience\": \"specific_users\",\n    \"customer_ids\": [3, 4],\n    \"target_products_type\": \"specific_products\",\n    \"product_ids\": [5, 6]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/coupons/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "coupons",
+                "1"
+              ]
+            }
+          }
+        },
+        {
           "name": "Super Admin Login",
           "event": [
             {
@@ -411,6 +443,30 @@
           }
         },
         {
+          "name": "Get Cart Item",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/item/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "item",
+                "1"
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Customer Orders (Unlocked: not cancelled/delivered)",
           "request": {
             "method": "GET",
@@ -534,6 +590,93 @@
               ]
             },
             "description": "يحذف العناصر غير المحجوزة فقط من سلة العميل"
+          }
+        },
+        {
+          "name": "Apply Coupon To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VIP30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/coupons/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "coupons",
+                "apply"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Apply Coupon To Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"FLAT50\",\n  \"item_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/coupons/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "coupons",
+                "apply"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Applied Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/coupons",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "coupons"
+              ]
+            }
           }
         },
         {
@@ -665,6 +808,68 @@
                 "dashboard",
                 "carts",
                 "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Carts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/search?cart_code=CART-20251208-00002",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "cart_code",
+                  "value": "CART-20251208-00002"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Cart Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/carts/1/items/search?product_code=PROD001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "carts",
+                "1",
+                "items",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "product_code",
+                  "value": "PROD001"
+                }
               ]
             }
           }
@@ -839,6 +1044,62 @@
                 "api",
                 "dashboard",
                 "orders",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/search?invoice_number=INV-20251208-00001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "invoice_number",
+                  "value": "INV-20251208-00001"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order Item Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/orders/1/items/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "orders",
+                "1",
+                "items",
                 "1"
               ]
             }

@@ -88,5 +88,24 @@ module.exports = {
   getAllCoupons,
   getCouponById,
   toggleStatus,
-  deleteCoupon
+  deleteCoupon,
+  updateCoupon: async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return response.badRequest(res, 'يرجى تحديد معرف الكوبون');
+      }
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return response.badRequest(res, 'يرجى إرسال بيانات للتعديل');
+      }
+      const result = await couponService.updateCoupon(id, req.body);
+      return response.updated(res, result, 'تم تعديل الكوبون');
+    } catch (error) {
+      console.error('Update Coupon Error:', error);
+      if (error.code === 'ER_DUP_ENTRY') {
+        return response.badRequest(res, 'كود الكوبون موجود مسبقاً');
+      }
+      return response.handleError(res, error, 'حدث خطأ أثناء تعديل الكوبون');
+    }
+  }
 };

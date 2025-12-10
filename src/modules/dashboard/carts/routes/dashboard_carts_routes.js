@@ -20,6 +20,7 @@ router.get('/items', dashboardCartsController.getAllCartItems);
 
 // السلات الجاهزة للشحن
 router.get('/pending', dashboardCartsController.getPendingCarts);
+router.get('/search', dashboardCartsController.searchCarts);
 
 // تأكيد السلة بالكود - (محاسب أو أدمن فقط)
 router.post('/confirm', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]), dashboardCartsController.confirmCartByCode);
@@ -35,5 +36,6 @@ router.delete('/:cart_id', checkRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN])
 
 // تفاصيل سلة محددة
 router.get('/:cart_id', dashboardCartsController.getCartDetails);
+router.get('/:cart_id/items/search', dashboardCartsController.searchCartItems);
 
 module.exports = router;

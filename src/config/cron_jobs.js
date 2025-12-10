@@ -7,7 +7,7 @@ const cron = require('node-cron');
 const pool = require('./dbconnect');
 const settingsService = require('./settings_service');
 const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS, ORDER_STATUS } = require('./constants');
-const admin = require('../firebase');
+const { getAdmin } = require('../firebase');
 
 /**
  * قفل العناصر المنتهية الصلاحية وخصم المخزون
@@ -48,6 +48,7 @@ const lockExpiredItems = async () => {
       );
 
       try {
+        const admin = await getAdmin();
         await admin.messaging().send({
           notification: {
             title: 'حجز جديد!',
@@ -110,6 +111,7 @@ const sendShipmentReminders = async () => {
       );
 
       try {
+        const admin = await getAdmin();
         await admin.messaging().send({
           notification: {
             title: 'تذكير بالشحن',

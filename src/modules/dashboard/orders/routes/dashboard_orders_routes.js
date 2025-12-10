@@ -14,9 +14,11 @@ router.use(checkRole(['super_admin', 'employee']));
 
 // عرض الطلبات
 router.get('/', ordersController.getAllOrders);
+router.get('/search', ordersController.searchOrders);
 
 // تفاصيل طلب
 router.get('/:id', ordersController.getOrderById);
+router.get('/:order_id/items/:item_id', ordersController.getOrderItem);
 
 // تحديث حالة طلب
 router.put('/:id/status', ordersController.updateOrderStatus);

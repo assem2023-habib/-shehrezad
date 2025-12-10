@@ -1,6 +1,6 @@
 const pool = require("../../../../config/dbconnect");
 const cloudinary = require("../../../../config/cloudinary");
-const admin = require("../../../../firebase");
+const { getAdmin } = require("../../../../firebase");
 
 /**
  * توليد كود منتج فريد
@@ -217,6 +217,7 @@ const addProduct = async (req, res) => {
 
     await connection.queryAsync("COMMIT");
 
+    const admin = await getAdmin();
     admin.messaging().send({
           notification: {
             title: "منتج جديد!",

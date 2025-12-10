@@ -178,6 +178,29 @@ const deleteCart = async (req, res) => {
     return response.serverError(res, 'حدث خطأ أثناء حذف السلة');
   }
 };
+const searchCarts = async (req, res) => {
+  try {
+    const { cart_id, cart_code } = req.query;
+    const result = await dashboardCartsService.searchCarts({ cart_id, cart_code });
+    return response.success(res, result);
+  } catch (error) {
+    console.error('Search Carts Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء البحث عن السلات');
+  }
+};
+
+const searchCartItems = async (req, res) => {
+  try {
+    const { cart_id } = req.params;
+    const { item_id, product_code } = req.query;
+    const result = await dashboardCartsService.searchCartItems(parseInt(cart_id), { item_id, product_code });
+    return response.success(res, result);
+  } catch (error) {
+    console.error('Search Cart Items Error:', error);
+    return response.serverError(res, 'حدث خطأ أثناء البحث عن عناصر السلة');
+  }
+};
+
 
 module.exports = {
   getAllCarts,
@@ -187,5 +210,7 @@ module.exports = {
   confirmCartByCode,
   createCart,
   updateCart,
-  deleteCart
+  deleteCart,
+  searchCarts,
+  searchCartItems
 };

@@ -29,6 +29,9 @@ router.delete('/remove/:item_id', cartController.removeFromCart);
 
 // تحديث كمية
 router.put('/update/:item_id', cartController.updateCartItem);
+router.get('/item/:item_id', cartController.getCartItem);
+router.post('/coupons/apply', cartController.applyCoupon);
+router.get('/coupons', cartController.getAppliedCoupons);
 
 // مسح السلة (يحذف العناصر غير المحجوزة فقط)
 router.delete('/clear', cartController.clearCart);
