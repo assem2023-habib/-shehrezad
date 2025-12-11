@@ -38,8 +38,6 @@ app.use('/api/products', require('./modules/customer/products/routes/products_ro
 // السلة - يتطلب توكن
 app.use('/api/cart', require('./modules/customer/cart/routes/cart_routes'));
 
-// الطلبات - يتطلب توكن
-
 
 // التقييمات - يتطلب توكن
 app.use('/api/reviews', require('./modules/customer/reviews/routes/reviews_routes'));
@@ -99,7 +97,7 @@ app.use('/api/coupons', require('./modules/customer/coupons/routes/customer_coup
 app.use('/api/profile', require('./modules/customer/profile/routes/profile_routes'));
 
 // الدعم (عام)
-app.use('/api/support', require('./modules/support/routes/support_routes'));
+app.use('/api/support', require('./modules/customer/support/routes/support_routes'));
 
 
 // =====================

@@ -1,6 +1,6 @@
-const settingsService = require('../../../config/settings_service');
-const response = require('../../../config/response_helper');
-const { SETTING_KEYS } = require('../../../config/constants');
+const settingsService = require('../../../../config/settings_service');
+const response = require('../../../../config/response_helper');
+const { SETTING_KEYS } = require('../../../../config/constants');
 
 const getSupportNumbers = async (req, res) => {
   try {

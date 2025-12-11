@@ -1,18 +1,12 @@
-const pool = require("../../../config/dbconnect");
 const response = require("../../../config/response_helper");
+const { logoutUser } = require("../services/auth_logout");
 
-// Dashboard Logout
 const logout = async (req, res) => {
   try {
-    const token = req.token; // مأخوذ من verifyToken
+    const token = req.token;
     const user_id = req.user.user_id;
 
-    // حفظ التوكن في جدول التوكنات الملغاة
-    await pool.query(
-      "INSERT INTO invalid_tokens (token, user_id) VALUES (?, ?)",
-      [token, user_id]
-    );
-
+    await logoutUser(token, user_id);
     return response.success(res, null, "تم تسجيل الخروج بنجاح");
 
   } catch (error) {
