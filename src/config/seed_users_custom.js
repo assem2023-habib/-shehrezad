@@ -1,6 +1,5 @@
 /**
  * Seeder - إضافة مستخدمين sama و haider
- * 
  * تشغيل: node src/config/seed_users_custom.js
  */
 
@@ -10,10 +9,10 @@ const bcrypt = require('bcrypt');
 
 // إنشاء اتصال
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: 'shehrezad',
+    host: "127.0.0.1",
+    user: "assem",
+    password: "Assem2025@@",
+    database: "shehrezad",
     multipleStatements: true
 });
 
@@ -28,44 +27,63 @@ const query = (sql, params = []) => {
 };
 
 async function seedUsers() {
-    await new Promise((resolve, reject) => {
-        connection.connect(err => {
-            if (err) reject(err);
-            else resolve();
+    try {
+        console.log("🔌 Connecting to database...");
+
+        await new Promise((resolve, reject) => {
+            connection.connect(err => {
+                if (err) reject(err);
+                else resolve();
+            });
         });
-    });
-    // ============================
-    // 1. تشفير كلمة السر
-    // ============================
-    const userPassword = await bcrypt.hash('user123', 10);
 
-    // قائمة المستخدمين
-    const users = [
-        {
-            name: 'sama',
-            email: 'sama@example.com',
-            role: 'customer',
-            phone: '0501111111',
-            code: 'CUST1001'
-        },
-        {
-            name: 'haider',
-            email: 'haider@example.com',
-            role: 'customer',
-            phone: '0502222222',
-            code: 'CUST1002'
+        console.log("✅ Connected!\n");
+
+        // ============================
+        // 1. تشفير كلمة السر
+        // ============================
+        const userPassword = await bcrypt.hash('password', 10);
+
+        // قائمة المستخدمين
+        const users = [
+            {
+                name: 'sama',
+                email: 'sama@cust.com',
+                role: 'customer',
+                phone: '0501111',
+                code: 'Sama1'
+            },
+            {
+                name: 'haider',
+                email: 'haider@cust.com',
+                role: 'customer',
+                phone: '0502222',
+                code: 'Haider1'
+            }
+        ];
+
+        console.log("👥 Seeding users... Customer");
+
+        for (const user of users) {
+            await query(
+                `
+                INSERT INTO users (full_name, email, password, role, phone, customer_code)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE full_name = VALUES(full_name)
+                `,
+                [user.name, user.email, userPassword, user.role, user.phone, user.code]
+            );
+
+            console.log(`✅ Inserted: ${user.name}`);
         }
-    ];
 
-    for (const user of users) {
-        await query(
-            `
-        INSERT INTO users (full_name, email, password, role, phone, customer_code)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name)
-        `,
-            [user.name, user.email, userPassword, user.role, user.phone, user.code]
-        );
+        console.log("\n🎉 DONE! Users inserted successfully.");
+
+    } catch (err) {
+        console.error("❌ ERROR:", err);
+    } finally {
+        connection.end();
+        console.log("🔌 Connection closed");
     }
 }
 
