@@ -1,4 +1,4 @@
-const settingsService = require('../../../../config/settings_service');
+const { settingsService } = require('../../../../config/database');
 const response = require('../../../../config/response_helper');
 const { SETTING_KEYS } = require('../../../../config/constants');
 

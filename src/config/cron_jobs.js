@@ -5,7 +5,7 @@
 
 const cron = require('node-cron');
 const pool = require('./dbconnect');
-const settingsService = require('./settings_service');
+const { settingsService } = require('./database');
 const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS, ORDER_STATUS } = require('./constants');
 const { getAdmin } = require('../firebase');
 

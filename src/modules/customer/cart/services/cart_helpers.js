@@ -4,7 +4,7 @@
  */
 
 const pool = require('../../../../config/dbconnect');
-const settingsService = require('../../../../config/settings_service');
+const { settingsService } = require('../../../../config/database');
 const { SETTING_KEYS, HTTP_STATUS } = require('../../../../config/constants');
 
 const generateCartCode = async () => {

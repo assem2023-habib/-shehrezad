@@ -7,7 +7,7 @@ const PDFDocument = require('pdfkit');
 const path = require('path');
 const fs = require('fs');
 const pool = require('../../../../config/dbconnect');
-const settingsService = require('../../../../config/settings_service');
+const { settingsService } = require('../../../../config/database');
 
 // مسار الخط العربي
 const ARABIC_FONT_PATH = path.join(__dirname, '../../../../assets/fonts/NotoSansArabic-Regular.ttf');
@@ -57,7 +57,7 @@ const getOrderDataForInvoice = async (orderId) => {
  */
 const generateInvoicePDF = async (orderId) => {
   const orderData = await getOrderDataForInvoice(orderId);
-  
+
   if (!orderData) {
     throw new Error('Order not found');
   }
@@ -122,7 +122,7 @@ const generateInvoicePDF = async (orderId) => {
       doc.moveDown();
 
       const invoiceInfoY = doc.y;
-      
+
       // معلومات الفاتورة (يسار)
       doc.fontSize(10);
       doc.text(`Invoice #: ${orderData.invoice_number || 'N/A'}`, 50, invoiceInfoY);
@@ -139,7 +139,7 @@ const generateInvoicePDF = async (orderId) => {
       doc.font('Helvetica');
       doc.text(`Code: ${orderData.customer_code || 'N/A'}`, 300);
       doc.text(`Phone: ${orderData.phone || 'N/A'}`, 300);
-      
+
       doc.moveDown(2);
 
       // ===== جدول المنتجات =====
@@ -151,7 +151,7 @@ const generateInvoicePDF = async (orderId) => {
       // رأس الجدول
       doc.rect(50, tableTop, 495, 20).fill('#e0e0e0');
       doc.fillColor('#000000');
-      
+
       doc.font('Helvetica-Bold').fontSize(9);
       tableHeaders.forEach((header, i) => {
         doc.text(header, xPos + 3, tableTop + 5, { width: colWidths[i] - 6 });
@@ -164,7 +164,7 @@ const generateInvoicePDF = async (orderId) => {
       orderData.items.forEach((item, index) => {
         xPos = 50;
         const itemPrice = parseFloat(item.price_at_purchase || 0);
-        
+
         // الخلفية للصفوف الفردية
         if (index % 2 === 1) {
           doc.rect(50, rowY - 3, 495, 18).fill('#f5f5f5');
@@ -174,7 +174,7 @@ const generateInvoicePDF = async (orderId) => {
         // رقم الصف
         doc.text((index + 1).toString(), xPos + 3, rowY, { width: colWidths[0] - 6 });
         xPos += colWidths[0];
-        
+
         // اسم المنتج (قد يكون عربي)
         const productName = item.product_name || item.product_code || '-';
         if (hasArabicFont && hasArabic(productName)) {
@@ -225,7 +225,7 @@ const generateInvoicePDF = async (orderId) => {
       // Subtotal
       doc.text('Subtotal:', 380, totalsY);
       doc.text(`${subtotal.toFixed(2)} TRY`, 460, totalsY, { align: 'right', width: 85 });
-      
+
       // Discount
       let currentY = totalsY + 18;
       if (discountAmount > 0) {

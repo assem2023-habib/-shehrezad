@@ -4,7 +4,7 @@
  */
 
 const pool = require('../../../../config/dbconnect');
-const settingsService = require('../../../../config/settings_service');
+const { settingsService } = require('../../../../config/database');
 const { CART_STATUS, SETTING_KEYS, ORDER_STATUS } = require('../../../../config/constants');
 const { calculateItemCouponDiscount } = require('./cart_helpers');
 
