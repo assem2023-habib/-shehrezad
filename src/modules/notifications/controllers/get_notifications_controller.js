@@ -1,5 +1,5 @@
 const notificationService = require('../../../services/notification_service');
-const { sendSuccess, sendError, sendNotFound } = require('../../../config/response_helper');
+const { success, error } = require('../../../config/response_helper');
 
 /**
  * جلب إشعارات المستخدم الحالي
@@ -19,7 +19,7 @@ const getUserNotifications = async (req, res) => {
     const notifications = await notificationService.getUserNotifications(userId, options);
     const unreadCount = await notificationService.getUnreadCount(userId);
 
-    return sendSuccess(res, {
+    return success(res, {
       notifications,
       unread_count: unreadCount,
       total: notifications.length
@@ -27,7 +27,7 @@ const getUserNotifications = async (req, res) => {
 
   } catch (error) {
     console.error('[Get Notifications Controller] Error:', error);
-    return sendError(res, 'حدث خطأ أثناء جلب الإشعارات', 500);
+    return error(res, 'حدث خطأ أثناء جلب الإشعارات', 500);
   }
 };
 

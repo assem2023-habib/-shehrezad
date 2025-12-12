@@ -187,7 +187,7 @@ const getCartDetails = async (cartId) => {
 
   const createdSeconds = Math.floor((Date.now() - new Date(cart[0].created_at).getTime()) / 1000);
   const prevNotes = await pool.query(`
-    SELECT customer_note, cart_note, currency, order_id, created_at 
+    SELECT customer_note, cart_note
     FROM orders 
     WHERE user_id = ? AND (customer_note IS NOT NULL OR cart_note IS NOT NULL)
     ORDER BY order_id DESC
@@ -195,26 +195,25 @@ const getCartDetails = async (cartId) => {
   `, [cart[0].user_id]);
   const previous_customer_note = prevNotes.length ? prevNotes[0].customer_note : null;
   const previous_cart_note = prevNotes.length ? prevNotes[0].cart_note : null;
-  const previous_note_currency = prevNotes.length ? prevNotes[0].currency : null;
-  const previous_note_order_id = prevNotes.length ? prevNotes[0].order_id : null;
-  const previous_note_created_at = prevNotes.length ? prevNotes[0].created_at : null;
+
+  // إنشاء كائن السلة بدون تفاصيل المستخدم
+  const { customer_name, customer_phone, customer_email, customer_code, customer_invoice_image, ...cartData } = cart[0];
+  
   const responseData = {
-    cart: { ...cart[0], time_since_created: formatTimeSince(createdSeconds) },
+    cart: { ...cartData, time_since_created: formatTimeSince(createdSeconds) },
     customer: {
       user_id: cart[0].user_id,
-      full_name: cart[0].customer_name,
-      phone: cart[0].customer_phone,
-      email: cart[0].customer_email,
-      customer_code: cart[0].customer_code,
-      invoice_image: cart[0].customer_invoice_image
+      full_name: customer_name,
+      phone: customer_phone,
+      email: customer_email,
+      customer_code: customer_code,
+      invoice_image: customer_invoice_image
     },
     has_debt: hasDebt,
     debts_summary: debtsSummary,
     previous_customer_note,
     previous_cart_note,
-    previous_note_currency,
-    previous_note_order_id,
-    previous_note_created_at,
+    has_item_with_coupon_applied: hasItemWithCouponApplied,
     items: items.map(it => {
       const coupons = itemCouponsMap[it.item_id] || [];
       const priceUsd = parseFloat(it.price_usd);
@@ -266,8 +265,7 @@ const getCartDetails = async (cartId) => {
         lock_time_remaining: Math.max(0, lockSeconds - it.seconds_since_added),
         customer_coupons: detailedCoupons
       };
-    }),
-    has_item_with_coupon_applied: hasItemWithCouponApplied
+     }),
   };
   return responseData;
 };

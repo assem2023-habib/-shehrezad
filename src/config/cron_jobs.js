@@ -80,7 +80,7 @@ const lockExpiredItems = async () => {
 };
 
 /**
- * إرسال تذكيرات الشحن
+ * إرسال تذكيرات الشحن وإنشاء طلبات تلقائية
  * يعمل كل يوم الساعة 9 صباحاً
  */
 const sendShipmentReminders = async () => {
@@ -101,87 +101,87 @@ const sendShipmentReminders = async () => {
     `, [CART_STATUS.ACTIVE, reminderDays]);
 
     for (const cart of pendingCarts) {
-      // إنشاء إشعار
-      await pool.query(`
-        INSERT INTO notifications (user_id, title, body, type)
-        VALUES (?, ?, ?, 'cart_reminder')
-      `, [
-        cart.user_id,
-        'تذكير بالشحن',
-        'مرحباً! مضى أكثر من 15 يوم على سلتك. يرجى التواصل معنا لترتيب الشحن.'
-      ]);
-
-      // تحديث حالة التذكير
-      await pool.query(
-        'UPDATE carts SET reminder_sent = 1, status = ? WHERE cart_id = ?',
-        [CART_STATUS.PENDING_SHIPMENT, cart.cart_id]
-      );
-
       try {
-        const admin = await getAdmin();
-        await admin.messaging().send({
-          notification: {
-            title: 'تذكير بالشحن',
-            body: `مرحباً ${cart.customer_name}! مضى أكثر من ${reminderDays} يوم على سلتك (${cart.cart_code}). يرجى التواصل معنا لترتيب الشحن.`
-          },
-          topic: `user_${cart.user_id}`
-        });
-      } catch (e) {
-        console.error('FCM Error:', e);
-      }
+        // 1. جلب عناصر السلة
+        const items = await pool.query(`
+          SELECT ci.*, p.price_usd, p.price_try, p.price_syp
+          FROM cart_items ci
+          JOIN products p ON ci.product_id = p.product_id
+          WHERE ci.cart_id = ?
+        `, [cart.cart_id]);
 
-      console.log(`[CRON] Sent reminder for cart ${cart.cart_id}`);
+        if (items.length === 0) {
+          console.log(`[CRON] Cart ${cart.cart_id} is empty, skipping`);
+          continue;
+        }
+
+        // 2. حساب المجموع الكلي (بالليرة التركية كعملة افتراضية)
+        let totalAmount = 0;
+        for (const item of items) {
+          totalAmount += parseFloat(item.price_try) * item.quantity;
+        }
+
+        // 3. إنشاء الطلب بحالة unpaid
+        const orderResult = await pool.query(`
+          INSERT INTO orders (user_id, total_amount, discount_amount, status, currency, customer_note, cart_note)
+          VALUES (?, ?, 0, ?, 'TRY', NULL, 'طلب تلقائي تم إنشاؤه بعد انتهاء مدة السلة')
+        `, [cart.user_id, totalAmount, ORDER_STATUS.UNPAID]);
+
+        const orderId = orderResult.insertId;
+
+        // 4. إضافة عناصر الطلب
+        for (const item of items) {
+          await pool.query(`
+            INSERT INTO order_items (order_id, product_id, color_id, size_id, quantity, price_at_purchase)
+            VALUES (?, ?, ?, ?, ?, ?)
+          `, [orderId, item.product_id, item.color_id, item.size_id, item.quantity, item.price_try]);
+        }
+
+        // 5. إنشاء الفاتورة
+        const today = new Date();
+        const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+        const invoiceNumber = `INV-${dateStr}-${String(orderId).padStart(5, '0')}`;
+
+        await pool.query(`
+          INSERT INTO invoices (order_id, invoice_number, total_amount, status)
+          VALUES (?, ?, ?, 'unpaid')
+        `, [orderId, invoiceNumber, totalAmount]);
+
+        // 6. إرسال إشعار للمستخدم
+        await notificationService.sendToUsers({
+          title: 'تم إنشاء طلبك',
+          body: `مرحباً ${cart.customer_name}! تم إنشاء طلب تلقائي من سلتك (${cart.cart_code}). رقم الفاتورة: ${invoiceNumber}. يرجى المتابعة لإتمام الدفع.`,
+          type: 'order_created',
+          data: {
+            order_id: orderId,
+            invoice_number: invoiceNumber,
+            cart_id: cart.cart_id,
+            cart_code: cart.cart_code,
+            total_amount: totalAmount,
+            currency: 'TRY'
+          },
+          userIds: [cart.user_id]
+        });
+
+        // 7. تحديث حالة السلة
+        await pool.query(
+          'UPDATE carts SET reminder_sent = 1, status = ? WHERE cart_id = ?',
+          [CART_STATUS.COMPLETED, cart.cart_id]
+        );
+
+        console.log(`[CRON] Created order ${orderId} (${invoiceNumber}) for cart ${cart.cart_id}`);
+
+      } catch (itemError) {
+        console.error(`[CRON] Error processing cart ${cart.cart_id}:`, itemError);
+      }
     }
 
     if (pendingCarts.length > 0) {
-      console.log(`[CRON] Sent ${pendingCarts.length} reminders`);
+      console.log(`[CRON] Processed ${pendingCarts.length} carts and created orders`);
     }
 
   } catch (error) {
     console.error('[CRON] Shipment Reminders Error:', error);
-  }
-};
-
-/**
- * حذف الطلبات القديمة (المعلقة) وإعادة الكمية للمخزون
- * يعمل كل يوم الساعة 12 ليلاً
- */
-const deleteStaleOrders = async () => {
-  try {
-    const reminderDays = await settingsService.get(SETTING_KEYS.CART_REMINDER_DAYS);
-
-    // جلب الطلبات غير المدفوعة/المعلقة القديمة
-    const staleOrders = await pool.query(
-      'SELECT o.order_id FROM orders o WHERE o.status IN (?, ?) AND DATEDIFF(NOW(), o.created_at) >= ?',
-      [ORDER_STATUS.UNPAID, ORDER_STATUS.PENDING, reminderDays]
-    );
-
-    for (const order of staleOrders) {
-      // جلب عناصر الطلب
-      const orderItems = await pool.query(`
-        SELECT product_id, size_id, quantity FROM order_items WHERE order_id = ?
-      `, [order.order_id]);
-
-      // إعادة الكمية للمخزون
-      for (const item of orderItems) {
-        await pool.query(
-          'UPDATE product_sizes SET quantity = quantity + ? WHERE size_id = ?',
-          [item.quantity, item.size_id]
-        );
-      }
-
-      // حذف الطلب (سيتم حذف العناصر والفاتورة تلقائياً بسبب ON DELETE CASCADE)
-      await pool.query('DELETE FROM orders WHERE order_id = ?', [order.order_id]);
-
-      console.log(`[CRON] Deleted stale order ${order.order_id} and restored stock`);
-    }
-
-    if (staleOrders.length > 0) {
-      console.log(`[CRON] Deleted ${staleOrders.length} stale orders`);
-    }
-
-  } catch (error) {
-    console.error('[CRON] Delete Stale Orders Error:', error);
   }
 };
 
@@ -197,14 +197,10 @@ const startCronJobs = () => {
   cron.schedule('0 9 * * *', sendShipmentReminders);
   console.log('[CRON] Shipment reminders job scheduled (daily at 9 AM)');
 
-  // حذف الطلبات القديمة كل يوم الساعة 12 ليلاً
-  cron.schedule('0 0 * * *', deleteStaleOrders);
-  console.log('[CRON] Stale orders cleanup job scheduled (daily at midnight)');
 };
 
 module.exports = {
   startCronJobs,
   lockExpiredItems,
-  sendShipmentReminders,
-  deleteStaleOrders
+  sendShipmentReminders
 };

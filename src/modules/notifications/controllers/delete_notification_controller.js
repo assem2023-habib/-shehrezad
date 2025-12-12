@@ -1,5 +1,5 @@
 const notificationService = require('../../../services/notification_service');
-const { sendSuccess, sendError, sendNotFound } = require('../../../config/response_helper');
+const { success, error, notFound } = require('../../../config/response_helper');
 
 /**
  * حذف إشعار من حساب المستخدم
@@ -11,20 +11,20 @@ const deleteNotification = async (req, res) => {
     const notificationUserId = parseInt(req.params.id);
 
     if (!notificationUserId) {
-      return sendError(res, 'معرّف الإشعار مطلوب', 400);
+      return error(res, 'معرّف الإشعار مطلوب', 400);
     }
 
     const success = await notificationService.deleteUserNotification(notificationUserId, userId);
 
     if (!success) {
-      return sendNotFound(res, 'الإشعار غير موجود أو لا تملك صلاحية حذفه');
+      return notFound(res, 'الإشعار غير موجود أو لا تملك صلاحية حذفه');
     }
 
-    return sendSuccess(res, null, 'تم حذف الإشعار بنجاح');
+    return success(res, null, 'تم حذف الإشعار بنجاح');
 
   } catch (error) {
     console.error('[Delete Notification Controller] Error:', error);
-    return sendError(res, 'حدث خطأ أثناء حذف الإشعار', 500);
+    return error(res, 'حدث خطأ أثناء حذف الإشعار', 500);
   }
 };
 

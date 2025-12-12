@@ -85,11 +85,13 @@ const getOrderById = async (orderId) => {
       u.email,
       u.customer_code,
       u.invoice_image,
+      confirmer.full_name as confirmed_by_name,
       i.invoice_number,
       i.issue_date,
       i.status as invoice_status
     FROM orders o
     JOIN users u ON o.user_id = u.user_id
+    LEFT JOIN users confirmer ON o.confirmed_by = confirmer.user_id
     LEFT JOIN invoices i ON o.order_id = i.order_id
     WHERE o.order_id = ?
   `, [orderId]);
@@ -122,7 +124,18 @@ const getOrderById = async (orderId) => {
         invoice_image: order.invoice_image || null
     };
 
-    const { full_name, phone, email, customer_code, invoice_image, ...orderWithoutUserFields } = order;
+    // إزالة الحقول غير المطلوبة وحقول المستخدم
+    const { 
+        full_name, 
+        phone, 
+        email, 
+        customer_code, 
+        invoice_image,
+        coupon_id,
+        discount_amount,
+        payment_method,
+        ...orderWithoutUserFields 
+    } = order;
 
     return {
         ...orderWithoutUserFields,

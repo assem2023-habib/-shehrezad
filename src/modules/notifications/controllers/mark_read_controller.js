@@ -1,5 +1,5 @@
 const notificationService = require('../../../services/notification_service');
-const { sendSuccess, sendError, sendNotFound } = require('../../../config/response_helper');
+const { success, error, notFound } = require('../../../config/response_helper');
 
 /**
  * تعليم إشعار كمقروء
@@ -11,20 +11,20 @@ const markNotificationAsRead = async (req, res) => {
     const notificationUserId = parseInt(req.params.id);
 
     if (!notificationUserId) {
-      return sendError(res, 'معرّف الإشعار مطلوب', 400);
+      return error(res, 'معرّف الإشعار مطلوب', 400);
     }
 
     const success = await notificationService.markAsRead(notificationUserId, userId);
 
     if (!success) {
-      return sendNotFound(res, 'الإشعار غير موجود أو لا تملك صلاحية الوصول إليه');
+      return notFound(res, 'الإشعار غير موجود أو لا تملك صلاحية الوصول إليه');
     }
 
-    return sendSuccess(res, null, 'تم تعليم الإشعار كمقروء بنجاح');
+    return success(res, null, 'تم تعليم الإشعار كمقروء بنجاح');
 
   } catch (error) {
     console.error('[Mark Read Controller] Error:', error);
-    return sendError(res, 'حدث خطأ أثناء تحديث الإشعار', 500);
+    return error(res, 'حدث خطأ أثناء تحديث الإشعار', 500);
   }
 };
 
@@ -38,11 +38,11 @@ const markAllAsRead = async (req, res) => {
 
     const affectedRows = await notificationService.markAllAsRead(userId);
 
-    return sendSuccess(res, { count: affectedRows }, `تم تعليم ${affectedRows} إشعار كمقروء`);
+    return success(res, { count: affectedRows }, `تم تعليم ${affectedRows} إشعار كمقروء`);
 
   } catch (error) {
     console.error('[Mark All Read Controller] Error:', error);
-    return sendError(res, 'حدث خطأ أثناء تحديث الإشعارات', 500);
+    return error(res, 'حدث خطأ أثناء تحديث الإشعارات', 500);
   }
 };
 
