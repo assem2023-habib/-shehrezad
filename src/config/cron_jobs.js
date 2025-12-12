@@ -7,7 +7,8 @@ const cron = require('node-cron');
 const pool = require('./dbconnect');
 const { settingsService } = require('./database');
 const { SETTING_KEYS, CART_STATUS, DEFAULT_SETTINGS, ORDER_STATUS } = require('./constants');
-const { getAdmin } = require('../firebase');
+const notificationService = require('../services/notification_service');
+
 
 /**
  * قفل العناصر المنتهية الصلاحية وخصم المخزون
@@ -47,20 +48,26 @@ const lockExpiredItems = async () => {
         [item.item_id]
       );
 
+      // إرسال إشعار للمدير بالحجز الجديد
       try {
-        const admin = await getAdmin();
-        await admin.messaging().send({
-          notification: {
-            title: 'حجز جديد!',
-            body: `تم حجز قطعة بواسطة ${item.customer_name}`
-          },
-          topic: 'dashboard_notifications'
+        await notificationService.sendToAdmin({
+          title: 'حجز جديد!',
+          body: `تم حجز منتج بواسطة ${item.customer_name} - رمز السلة: ${item.cart_code}`,
+          type: 'product_reserved',
+          data: {
+            cart_code: item.cart_code,
+            customer_name: item.customer_name,
+            item_id: item.item_id,
+            size_id: item.size_id,
+            quantity: item.quantity
+          }
         });
-      } catch (e) {
-        console.error('FCM Error:', e);
+      } catch (notifError) {
+        console.error('[CRON] Notification Error:', notifError);
       }
 
       console.log(`[CRON] Locked item ${item.item_id} and deducted stock`);
+
     }
 
     if (expiredItems.length > 0) {

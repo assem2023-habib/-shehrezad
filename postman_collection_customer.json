@@ -1048,6 +1048,169 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "🔔 Notifications",
+            "item": [
+                {
+                    "name": "Get My Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications"
+                            ]
+                        },
+                        "description": "جلب جميع إشعارات العميل"
+                    }
+                },
+                {
+                    "name": "Get Unread Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications?unread_only=true",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications"
+                            ],
+                            "query": [
+                                {
+                                    "key": "unread_only",
+                                    "value": "true"
+                                }
+                            ]
+                        },
+                        "description": "جلب الإشعارات غير المقروءة فقط"
+                    }
+                },
+                {
+                    "name": "Get Notifications with Pagination",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications?limit=20&offset=0",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "offset",
+                                    "value": "0"
+                                }
+                            ]
+                        },
+                        "description": "جلب الإشعارات مع التصفح"
+                    }
+                },
+                {
+                    "name": "Mark Notification as Read",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications/read/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications",
+                                "read",
+                                "1"
+                            ]
+                        },
+                        "description": "تعليم إشعار محدد كمقروء"
+                    }
+                },
+                {
+                    "name": "Mark All as Read",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications/read-all",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications",
+                                "read-all"
+                            ]
+                        },
+                        "description": "تعليم جميع الإشعارات كمقروءة"
+                    }
+                },
+                {
+                    "name": "Delete Notification",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/notifications/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "notifications",
+                                "1"
+                            ]
+                        },
+                        "description": "حذف إشعار من حساب العميل"
+                    }
+                }
+            ]
         }
     ]
 }

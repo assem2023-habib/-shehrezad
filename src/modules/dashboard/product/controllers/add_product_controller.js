@@ -1,6 +1,7 @@
 const pool = require("../../../../config/dbconnect");
 const cloudinary = require("../../../../config/cloudinary");
-const { getAdmin } = require("../../../../firebase");
+const notificationService = require("../../../../services/notification_service");
+
 /**
  * توليد كود منتج فريد
  * الصيغة: PRD-XXXXXX (حروف وأرقام عشوائية)
@@ -216,16 +217,27 @@ const addProduct = async (req, res) => {
 
     await connection.queryAsync("COMMIT");
 
-    const admin = await getAdmin();
-    admin.messaging().send({
-      notification: {
+    // إرسال إشعار لجميع المستخدمين (العملاء فقط)
+    try {
+      await notificationService.sendToAllUsers({
         title: "منتج جديد!",
-        body: `تم إضافة المنتج "${product_name}" الآن 🎉`
-      },
-      topic: "all_users"
-    }).catch(err => console.error("FCM Error:", err));
+        body: `تم إضافة المنتج "${product_name}" الآن 🎉`,
+        type: "product_added",
+        data: {
+          product_id,
+          product_code,
+          product_name,
+          product_category
+        },
+        customersOnly: true
+      });
+    } catch (notifError) {
+      // تجاهل أخطاء الإشعارات حتى لا تؤثر على نجاح إضافة المنتج
+      console.error('[Add Product] Notification Error:', notifError);
+    }
 
     return res.status(200).json({
+
       status: 200,
       success: true,
       message: "تمت إضافة المنتج بنجاح",
