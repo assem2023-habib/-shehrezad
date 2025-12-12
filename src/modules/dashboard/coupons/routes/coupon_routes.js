@@ -5,11 +5,12 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken, checkRole } = require('../../../../middleware/verifytoken');
+const { USER_ROLES } = require('../../../../config/constants');
 const couponController = require('../controllers/coupon_controller');
 
-// حماية المسارات (super_admin فقط للكوبونات)
+// حماية المسارات (super_admin و employee للكوبونات)
 router.use(verifyToken);
-router.use(checkRole(['super_admin']));
+router.use(checkRole([USER_ROLES.SUPER_ADMIN]));
 
 // المسارات
 router.post('/', couponController.createCoupon);

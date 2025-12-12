@@ -22,6 +22,9 @@ const createCoupon = async (couponData) => {
         product_ids = []
     } = couponData;
 
+    // إذا لم يتم تحديد تاريخ البدء، استخدم تاريخ اليوم
+    const effectiveStartDate = start_date || new Date().toISOString().split('T')[0];
+
     const connection = await getConnection();
     const query = createQuery(connection);
 
@@ -36,7 +39,7 @@ const createCoupon = async (couponData) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
             code, discount_type, discount_value, min_purchase_amount,
-            max_discount_amount, start_date, end_date, usage_limit,
+            max_discount_amount, effectiveStartDate, end_date, usage_limit,
             target_audience, target_products_type
         ]);
 
@@ -59,7 +62,11 @@ const createCoupon = async (couponData) => {
         }
 
         await query('COMMIT');
-        return { coupon_id: couponId, ...couponData };
+        return {
+            coupon_id: couponId,
+            ...couponData,
+            start_date: effectiveStartDate // إرجاع التاريخ الفعلي المستخدم
+        };
 
     } catch (error) {
         await query('ROLLBACK');
