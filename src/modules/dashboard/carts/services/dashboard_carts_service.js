@@ -143,6 +143,7 @@ const getCartDetails = async (cartId) => {
       pc.color_name,
       pc.color_value,
       ps.size_value,
+      (SELECT image_url FROM product_images WHERE product_id = p.product_id AND is_main = 1 LIMIT 1) as product_image,
       TIMESTAMPDIFF(SECOND, ci.added_at, NOW()) as seconds_since_added
     FROM cart_items ci
     JOIN products p ON ci.product_id = p.product_id
