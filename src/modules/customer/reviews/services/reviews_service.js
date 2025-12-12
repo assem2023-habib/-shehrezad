@@ -143,12 +143,13 @@ const getMyReviews = async (userId, page = 1, limit = 10) => {
 };
 
 /**
- * تحديث تقييم (قبل الموافقة عليه فقط)
+ * تحديث تقييم
+ * يمكن للعميل تعديل تقييمه في أي وقت
  */
 const updateReview = async (userId, reviewId, updateData) => {
     const { rating, comment } = updateData;
 
-    // التحقق من أن التقييم يخص المستخدم وأنه لم يتم الموافقة عليه بعد
+    // التحقق من أن التقييم يخص المستخدم
     const review = await pool.query(
         'SELECT * FROM reviews WHERE review_id = ? AND user_id = ?',
         [reviewId, userId]
@@ -160,12 +161,6 @@ const updateReview = async (userId, reviewId, updateData) => {
         throw error;
     }
 
-    if (review[0].status !== REVIEW_STATUS.PENDING) {
-        const error = new Error('لا يمكن تعديل تقييم تم مراجعته');
-        error.status = HTTP_STATUS.BAD_REQUEST;
-        throw error;
-    }
-
     if (rating && (rating < 1 || rating > 5)) {
         const error = new Error('التقييم يجب أن يكون من 1 إلى 5');
         error.status = HTTP_STATUS.BAD_REQUEST;
@@ -174,36 +169,32 @@ const updateReview = async (userId, reviewId, updateData) => {
 
     // تحديث التقييم
     await pool.query(
-        'UPDATE reviews SET rating = ?, comment = ? WHERE review_id = ?',
-        [rating || review[0].rating, comment || review[0].comment, reviewId]
+        'UPDATE reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE review_id = ?',
+        [rating || review[0].rating, comment !== undefined ? comment : review[0].comment, reviewId]
     );
 
     return {
         review_id: reviewId,
         rating: rating || review[0].rating,
-        comment: comment || review[0].comment,
-        status: REVIEW_STATUS.PENDING
+        comment: comment !== undefined ? comment : review[0].comment,
+        status: review[0].status,
+        updated_at: new Date()
     };
 };
 
 /**
- * حذف تقييم (قبل الموافقة عليه فقط)
+ * حذف تقييم
+ * يمكن للعميل حذف تقييمه في أي وقت
  */
 const deleteReview = async (userId, reviewId) => {
     const review = await pool.query(
-        'SELECT status FROM reviews WHERE review_id = ? AND user_id = ?',
+        'SELECT review_id FROM reviews WHERE review_id = ? AND user_id = ?',
         [reviewId, userId]
     );
 
     if (!review.length) {
         const error = new Error('التقييم غير موجود');
         error.status = HTTP_STATUS.NOT_FOUND;
-        throw error;
-    }
-
-    if (review[0].status !== REVIEW_STATUS.PENDING) {
-        const error = new Error('لا يمكن حذف تقييم تم مراجعته');
-        error.status = HTTP_STATUS.BAD_REQUEST;
         throw error;
     }
 
