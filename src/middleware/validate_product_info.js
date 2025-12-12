@@ -63,17 +63,18 @@ const validateProductUpdate = async (req, res, next) => {
 
   const { product_code, product_name, product_category, price_usd, price_try, price_syp } = req.body;
 
-  // التحقق من الحقول الأساسية
-  if (!product_code || !product_name || !product_category) {
+  // التحقق من الحقول الأساسية - للتحديث يمكن أن تكون اختيارية
+  // يجب إدخال قيمة واحدة على الأقل
+  if (!product_code && !product_name && !product_category && !price_usd && !price_try && !price_syp) {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: "الرجاء إدخال product_code, product_name, product_category"
+      message: "يجب إدخال قيمة واحدة على الأقل للتحديث"
     });
   }
 
-  // التحقق من التصنيف
-  if (!allowedCategories.includes(product_category)) {
+  // التحقق من التصنيف - فقط إذا تم إرساله
+  if (product_category && !allowedCategories.includes(product_category)) {
     return res.status(400).json({
       status: 400,
       success: false,
@@ -81,17 +82,19 @@ const validateProductUpdate = async (req, res, next) => {
     });
   }
 
-  // التحقق من السعر
-  const priceUsd = parseFloat(price_usd) || 0;
-  const priceTry = parseFloat(price_try) || 0;
-  const priceSyp = parseFloat(price_syp) || 0;
+  // التحقق من السعر - فقط إذا تم إرسال أسعار
+  if (price_usd || price_try || price_syp) {
+    const priceUsd = parseFloat(price_usd) || 0;
+    const priceTry = parseFloat(price_try) || 0;
+    const priceSyp = parseFloat(price_syp) || 0;
 
-  if (priceUsd === 0 && priceTry === 0 && priceSyp === 0) {
-    return res.status(400).json({
-      status: 400,
-      success: false,
-      message: "يجب إدخال سعر واحد على الأقل لإحدى العملات: USD، TRY، SYP"
-    });
+    if (priceUsd === 0 && priceTry === 0 && priceSyp === 0) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "يجب إدخال سعر واحد على الأقل لإحدى العملات: USD، TRY، SYP"
+      });
+    }
   }
 
   next();

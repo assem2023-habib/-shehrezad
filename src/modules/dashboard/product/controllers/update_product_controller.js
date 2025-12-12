@@ -5,13 +5,13 @@ const cloudinary = require("../../../../config/cloudinary");
  * رفع صورة واحدة إلى Cloudinary
  */
 const uploadImageToCloudinary = async (file, productId) => {
-  const base64 = `data:image/jpeg;base64,${file.buffer.toString('base64')}`;
-  const uploadResult = await cloudinary.uploader.upload(base64, {
-    folder: `products/${productId}`,
-    public_id: `prod_${productId}_${Date.now()}`,
-    unique_filename: true,
-  });
-  return uploadResult;
+    const base64 = `data:image/jpeg;base64,${file.buffer.toString('base64')}`;
+    const uploadResult = await cloudinary.uploader.upload(base64, {
+        folder: `products/${productId}`,
+        public_id: `prod_${productId}_${Date.now()}`,
+        unique_filename: true,
+    });
+    return uploadResult;
 };
 
 const updateProduct = async (req, res) => {
@@ -70,33 +70,60 @@ const updateProduct = async (req, res) => {
             }
         }
 
-        // تحديث بيانات المنتج الأساسية
-        await connection.queryAsync(
-            `UPDATE products 
-             SET product_code=?, product_name=?, product_description=?, product_category=?,
-                 price_usd=?, price_try=?, price_syp=?, updated_at=NOW()
-             WHERE product_id=?`,
-            [
-                product_code,
-                product_name,
-                product_description || "",
-                product_category,
-                price_usd || 0,
-                price_try || 0,
-                price_syp || 0,
-                product_id
-            ]
-        );
+        // تحديث بيانات المنتج الأساسية - فقط الحقول المرسلة
+        const currentProduct = productCheck[0];
+
+        // بناء UPDATE query ديناميكي بناءً على الحقول المرسلة
+        let updateFields = [];
+        let updateValues = [];
+
+        if (product_code !== undefined) {
+            updateFields.push("product_code=?");
+            updateValues.push(product_code);
+        }
+        if (product_name !== undefined) {
+            updateFields.push("product_name=?");
+            updateValues.push(product_name);
+        }
+        if (product_description !== undefined) {
+            updateFields.push("product_description=?");
+            updateValues.push(product_description || "");
+        }
+        if (product_category !== undefined) {
+            updateFields.push("product_category=?");
+            updateValues.push(product_category);
+        }
+        if (price_usd !== undefined) {
+            updateFields.push("price_usd=?");
+            updateValues.push(price_usd || 0);
+        }
+        if (price_try !== undefined) {
+            updateFields.push("price_try=?");
+            updateValues.push(price_try || 0);
+        }
+        if (price_syp !== undefined) {
+            updateFields.push("price_syp=?");
+            updateValues.push(price_syp || 0);
+        }
+
+        // إضافة updated_at و product_id
+        updateFields.push("updated_at=NOW()");
+        updateValues.push(product_id);
+
+        if (updateFields.length > 1) { // إذا كان هناك حقول للتحديث
+            const updateQuery = `UPDATE products SET ${updateFields.join(', ')} WHERE product_id=?`;
+            await connection.queryAsync(updateQuery, updateValues);
+        }
 
         const updatedProduct = {
             product_id,
-            product_code,
-            product_name,
-            product_description: product_description || "",
-            product_category,
-            price_usd: price_usd || 0,
-            price_try: price_try || 0,
-            price_syp: price_syp || 0,
+            product_code: product_code !== undefined ? product_code : currentProduct.product_code,
+            product_name: product_name !== undefined ? product_name : currentProduct.product_name,
+            product_description: product_description !== undefined ? (product_description || "") : currentProduct.product_description,
+            product_category: product_category !== undefined ? product_category : currentProduct.product_category,
+            price_usd: price_usd !== undefined ? (price_usd || 0) : currentProduct.price_usd,
+            price_try: price_try !== undefined ? (price_try || 0) : currentProduct.price_try,
+            price_syp: price_syp !== undefined ? (price_syp || 0) : currentProduct.price_syp,
             colors: [],
             images: []
         };
@@ -117,14 +144,43 @@ const updateProduct = async (req, res) => {
 
                 let currentColorId = color_id;
 
+                // التحقق من أن color_id يعود لهذا المنتج
+                if (currentColorId) {
+                    const colorValidation = await connection.queryAsync(
+                        "SELECT color_id FROM product_colors WHERE color_id = ? AND product_id = ? LIMIT 1",
+                        [currentColorId, product_id]
+                    );
+
+                    if (colorValidation.length === 0) {
+                        await connection.queryAsync("ROLLBACK");
+                        return res.status(400).json({
+                            status: 400,
+                            success: false,
+                            message: `color_id ${currentColorId} لا ينتمي لهذا المنتج`
+                        });
+                    }
+                }
+
+                // البحث عن لون موجود لهذا المنتج بنفس الاسم أو القيمة
+                if (!currentColorId && (color_name || color_value)) {
+                    const existingColor = await connection.queryAsync(
+                        "SELECT color_id FROM product_colors WHERE product_id = ? AND (color_name = ? OR color_value = ?) LIMIT 1",
+                        [product_id, color_name || null, color_value || null]
+                    );
+
+                    if (existingColor.length > 0) {
+                        currentColorId = existingColor[0].color_id;
+                    }
+                }
+
                 // إضافة لون جديد إذا لم يكن موجودًا
-                if (!currentColorId) {
+                if (!currentColorId && (color_name || color_value)) {
                     const colorInsert = await connection.queryAsync(
                         "INSERT INTO product_colors (product_id, color_name, color_value) VALUES (?, ?, ?)",
                         [product_id, color_name || null, color_value || null]
                     );
                     currentColorId = colorInsert.insertId;
-                } else {
+                } else if (currentColorId && (color_name || color_value)) {
                     // تعديل لون موجود
                     await connection.queryAsync(
                         "UPDATE product_colors SET color_name=?, color_value=? WHERE color_id=?",
@@ -152,27 +208,60 @@ const updateProduct = async (req, res) => {
                             continue;
                         }
 
-                        if (!size_id) {
+                        let currentSizeId = size_id;
+
+                        // التحقق من أن size_id يعود لهذا اللون والمنتج
+                        if (currentSizeId) {
+                            const sizeValidation = await connection.queryAsync(
+                                `SELECT ps.size_id 
+                                 FROM product_sizes ps 
+                                 JOIN product_colors pc ON ps.color_id = pc.color_id 
+                                 WHERE ps.size_id = ? AND pc.color_id = ? AND pc.product_id = ? 
+                                 LIMIT 1`,
+                                [currentSizeId, currentColorId, product_id]
+                            );
+
+                            if (sizeValidation.length === 0) {
+                                await connection.queryAsync("ROLLBACK");
+                                return res.status(400).json({
+                                    status: 400,
+                                    success: false,
+                                    message: `size_id ${currentSizeId} لا ينتمي لهذا اللون أو المنتج`
+                                });
+                            }
+                        }
+
+                        // البحث عن مقاس موجود لهذا اللون بنفس القيمة
+                        if (!currentSizeId && size_value) {
+                            const existingSize = await connection.queryAsync(
+                                "SELECT size_id FROM product_sizes WHERE color_id = ? AND size_value = ? LIMIT 1",
+                                [currentColorId, size_value]
+                            );
+
+                            if (existingSize.length > 0) {
+                                currentSizeId = existingSize[0].size_id;
+                            }
+                        }
+
+                        if (!currentSizeId && size_value) {
                             const sizeInsert = await connection.queryAsync(
                                 "INSERT INTO product_sizes (color_id, size_value, quantity) VALUES (?, ?, ?)",
                                 [currentColorId, size_value, quantity || 0]
                             );
-                            colorData.sizes.push({
-                                size_id: sizeInsert.insertId,
-                                size_value,
-                                quantity: quantity || 0
-                            });
-                        } else {
+                            currentSizeId = sizeInsert.insertId;
+                        } else if (currentSizeId && size_value) {
+                            // تحديث مقاس موجود
                             await connection.queryAsync(
                                 "UPDATE product_sizes SET size_value=?, quantity=? WHERE size_id=?",
-                                [size_value, quantity || 0, size_id]
+                                [size_value, quantity || 0, currentSizeId]
                             );
-                            colorData.sizes.push({
-                                size_id,
-                                size_value,
-                                quantity: quantity || 0
-                            });
                         }
+
+                        colorData.sizes.push({
+                            size_id: currentSizeId,
+                            size_value,
+                            quantity: quantity || 0
+                        });
                     }
                 }
 
@@ -208,7 +297,7 @@ const updateProduct = async (req, res) => {
             for (const file of files) {
                 try {
                     const uploadResult = await uploadImageToCloudinary(file, product_id);
-                    
+
                     await connection.queryAsync(
                         "INSERT INTO product_images (product_id, image_url, public_id, is_main) VALUES (?, ?, ?, ?)",
                         [product_id, uploadResult.secure_url, uploadResult.public_id, isFirst ? 1 : 0]

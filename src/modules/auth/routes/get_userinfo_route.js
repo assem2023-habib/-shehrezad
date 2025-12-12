@@ -7,4 +7,7 @@ const { getCurrentUser } = require("../../auth/controllers/get_userinfo_controll
 // GET /api/auth/me
 router.get("/auth/me", verifyToken, getCurrentUser);
 
+// GET /api/get-userinfo (for Postman collections compatibility)
+router.get("/get-userinfo", verifyToken, getCurrentUser);
+
 module.exports = router;

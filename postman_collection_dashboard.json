@@ -432,7 +432,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "url": {
@@ -474,7 +474,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "url": {
@@ -499,7 +499,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "body": {
@@ -567,7 +567,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "body": {
@@ -641,7 +641,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "url": {
@@ -665,7 +665,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "body": {
@@ -703,7 +703,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             },
                             {
                                 "key": "Content-Type",
@@ -739,7 +739,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "url": {
@@ -762,7 +762,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             }
                         ],
                         "url": {
@@ -786,7 +786,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             },
                             {
                                 "key": "Content-Type",
@@ -818,7 +818,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{employeeToken}}"
+                                "value": "Bearer {{adminToken}}"
                             },
                             {
                                 "key": "Content-Type",

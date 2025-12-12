@@ -216,21 +216,6 @@ const addProduct = async (req, res) => {
 
     await connection.queryAsync("COMMIT");
 
-    getAdmin.messaging().send({
-      notification: {
-        title: "منتج جديد!",
-        body: `تم إضافة المنتج "${product_name}" الآن 🎉`
-      },
-      topic: "all_users"
-    }).catch(err => console.error("FCM Error:", err));
-
-    return res.status(200).json({
-      status: 200,
-      success: true,
-      message: "تمت إضافة المنتج بنجاح",
-      product: productData
-    });
-
     const admin = await getAdmin();
     admin.messaging().send({
       notification: {
