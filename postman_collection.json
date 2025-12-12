@@ -278,13 +278,18 @@
       ]
     },
     {
-      "name": "🛍️ Products (Public)",
+      "name": "🛍️ Products (Customer - Requires Auth)",
       "item": [
         {
           "name": "Get All Products",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/products",
               "host": [
@@ -294,14 +299,20 @@
                 "api",
                 "products"
               ]
-            }
+            },
+            "description": "يتطلب توكن العميل"
           }
         },
         {
           "name": "Get Products with Pagination",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/products?page=1&limit=10",
               "host": [
@@ -321,14 +332,20 @@
                   "value": "10"
                 }
               ]
-            }
+            },
+            "description": "يتطلب توكن العميل"
           }
         },
         {
           "name": "Search Products",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/products?search=فستان",
               "host": [
@@ -344,14 +361,20 @@
                   "value": "فستان"
                 }
               ]
-            }
+            },
+            "description": "يتطلب توكن العميل"
           }
         },
         {
           "name": "Get Products by Category",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/products/category/women",
               "host": [
@@ -363,14 +386,20 @@
                 "category",
                 "women"
               ]
-            }
+            },
+            "description": "يتطلب توكن العميل"
           }
         },
         {
           "name": "Get Product by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/products/1",
               "host": [
@@ -381,7 +410,8 @@
                 "products",
                 "1"
               ]
-            }
+            },
+            "description": "يتطلب توكن العميل"
           }
         }
       ]

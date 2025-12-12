@@ -4,6 +4,7 @@
 
 const pool = require('../../../../config/dbconnect');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { USER_ROLES } = require('../../../../config/constants');
 
 /**
@@ -18,7 +19,7 @@ const getLastAddedCustomers = async () => {
     LIMIT 4
   `;
   const customers = await pool.query(query, [USER_ROLES.CUSTOMER]);
-  
+
   // حساب الوقت منذ الإضافة (مثال: "قبل 2 ساعة")
   const now = new Date();
   const formatted = customers.map(c => {
@@ -28,7 +29,7 @@ const getLastAddedCustomers = async () => {
     if (diffMinutes < 60) {
       timeAgo = `منذ ${diffMinutes} دقيقة`;
     } else if (diffMinutes < 1440) {
-      timeAgo =` منذ ${Math.floor(diffMinutes / 60)} ساعة`;
+      timeAgo = ` منذ ${Math.floor(diffMinutes / 60)} ساعة`;
     } else {
       timeAgo = `منذ ${Math.floor(diffMinutes / 1440)} يوم`;
     }
@@ -46,26 +47,39 @@ const getLastAddedCustomers = async () => {
 };
 
 /**
- * توليد كود عميل فريد
- * الصيغة: SHZ-YYYYMMDD-XXXXX (مثال: SHZ-20241205-00001)
+ * توليد كود عميل فريد وآمن
+ * الصيغة: SHZ-YYYYMMDD-XXXXXXXXXXXXXXXX (مثال: SHZ-20241205-a7f3k9m2x5q8w1p4)
+ * يستخدم cryptographic random لجعل الكود أصعب في التخمين
  */
 const generateCustomerCode = async () => {
-  const today = new Date();
-  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+  let isUnique = false;
+  let customerCode = '';
 
-  // الحصول على آخر كود لهذا اليوم
-  const lastCustomer = await pool.query(
-    'SELECT customer_code FROM users WHERE customer_code LIKE ? ORDER BY user_id DESC LIMIT 1',
-    [`SHZ-${dateStr}-%`]
-  );
+  while (!isUnique) {
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
 
-  let sequence = 1;
-  if (lastCustomer.length > 0 && lastCustomer[0].customer_code) {
-    const lastNum = lastCustomer[0].customer_code.split('-')[2];
-    sequence = parseInt(lastNum) + 1;
+    // توليد 16 حرف عشوائي آمن (alphanumeric lowercase)
+    const randomBytes = crypto.randomBytes(12); // 12 bytes = 96 bits
+    const randomStr = randomBytes
+      .toString('hex')
+      .slice(0, 16)
+      .toLowerCase();
+
+    customerCode = `SHZ-${dateStr}-${randomStr}`;
+
+    // التحقق من عدم تكرار الكود
+    const existingCode = await pool.query(
+      'SELECT customer_code FROM users WHERE customer_code = ?',
+      [customerCode]
+    );
+
+    if (existingCode.length === 0) {
+      isUnique = true;
+    }
   }
 
-  return `SHZ-${dateStr}-${String(sequence).padStart(5, '0')}`;
+  return customerCode;
 };
 
 /**
@@ -79,7 +93,7 @@ const createCustomer = async (customerData) => {
     'SELECT user_id FROM users WHERE phone = ?',
     [phone]
   );
-  
+
   if (phoneCheck.length) {
     const error = new Error('رقم الهاتف مستخدم مسبقاً');
     error.status = 400;
@@ -141,7 +155,7 @@ const updateCustomer = async (userId, customerData) => {
       'SELECT user_id FROM users WHERE phone = ? AND user_id != ?',
       [phone, userId]
     );
-    
+
     if (phoneCheck.length) {
       const error = new Error('رقم الهاتف مستخدم مسبقاً');
       error.status = 400;
@@ -186,7 +200,7 @@ const deleteCustomer = async (userId) => {
 
   // يمكن إضافة تحقق إضافي هنا، مثلاً منع الحذف إذا كان لديه طلبات نشطة
   // حالياً سنقوم بالحذف المباشر (أو يمكن استخدام soft delete)
-  
+
   await pool.query('DELETE FROM users WHERE user_id = ?', [userId]);
 
   return { message: 'تم حذف العميل بنجاح' };

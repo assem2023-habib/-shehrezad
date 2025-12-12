@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>فاتورة {{invoiceNumber}}</title>
+<style>
+  @page { size: A4; margin: 18mm 12mm; }
+  body {
+    font-family: "Tahoma", "Arial", sans-serif;
+    direction: rtl;
+    color:#222;
+    background:#fff;
+  }
+
+  /* الرأس */
+  .header {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    background:#fff;
+    padding:10px 0;
+  }
+
+  /* قسم معلومات الفاتورة */
+  .meta-section {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    font-size:15px;
+    color:#222;
+    font-weight:bold;
+  }
+  .meta-row {
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .meta-title {
+    font-weight:700;
+    font-size:15px;
+    background:#f6dab0;
+    padding:4px 8px;
+    border-radius:4px;
+  }
+
+  /* اللوغو */
+  .logo-section {
+    flex:0 0 180px;
+    text-align:center;
+  }
+  .logo-section img {
+    width:130px;
+    height:auto;
+  }
+  .logo-section .company-name {
+    font-weight:900;
+    font-size:22px;
+    color:#000;
+    margin-top:8px;
+  }
+
+  /* قسم معلومات الشركة */
+  .info-section {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-size:14px;
+    color:#222;
+  }
+  .info-box {
+    background:#f6dab0;
+    padding:6px 8px;
+    border-radius:4px;
+    font-weight:700;
+    font-size:14px;
+  }
+
+  hr {
+    border:none;
+    border-top:3px solid #444;
+    margin:15px 0;
+  }
+
+  .title {
+    text-align:center;
+    margin:12px 0;
+    font-weight:900;
+    color:#000;
+    font-size:22px;
+  }
+
+  /* بيانات العميل */
+  .customer {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+  }
+
+  .cust-label {
+    background:#f6dab0;
+    padding:4px 8px;
+    border-radius:4px;
+    font-size:14px;
+    font-weight:bold;
+    display:inline-block;
+    width:fit-content;
+  }
+
+  .cust-value {
+    font-weight:900;
+    font-size:14px;
+    color:#000;
+    margin-right:6px;
+  }
+
+  .cust-column {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  /* الجدول */
+  table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    background:#fff;
+  }
+  table th, table td {
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+    vertical-align:middle;
+  }
+
+  /* هيدر الجدول */
+  table thead th {
+    background:#f6dab0;
+    font-weight:700;
+    color:#2c3e50;
+  }
+
+  /* أعمدة وردية */
+  .pink-cell {
+    background:#ffdce6 !important;
+    font-weight:bold;
+  }
+
+  /* مجموع الفاتورة */
+  .totals {
+    width:320px;
+    margin-left:auto;
+    margin-top:12px;
+  }
+  .totals .row {
+    display:flex;
+    justify-content:flex-start; /* لجعل العنوان والقيمة قريبين */
+    align-items:center;
+    gap:6px; /* مسافة صغيرة بينهم */
+    padding:6px 0;
+    background:#fff; /* خلفية بيضاء */
+    margin-bottom:4px;
+  }
+
+  .total-label {
+    font-weight:900;
+    color:#000;
+  }
+
+  .total-value {
+    background:#f6dab0;
+    padding:4px 10px;
+    border-radius:4px;
+    font-weight:900;
+    text-align:center;
+  }
+
+  .footer {
+    margin-top:18px;
+    border-top:2px solid #eee;
+    padding-top:10px;
+    font-size:12px;
+    color:#666;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+
+  <!-- يمين -->
+  <div class="meta-section">
+    <div class="meta-row"><span class="meta-title">التاريخ:</span> <span class="cust-value">{{date}}</span></div>
+    <div class="meta-row"><span class="meta-title">الوقت:</span> <span class="cust-value">{{time}}</span></div>
+    <div class="meta-row"><span class="meta-title">رقم الفاتورة:</span> <span class="cust-value">{{invoiceNumber}}</span></div>
+    <div class="meta-row"><span class="meta-title">العملة:</span> <span class="cust-value">{{currency}}</span></div>
+  </div>
+
+  <!-- الوسط -->
+  <div class="logo-section">
+    <img src="{{logoData}}" alt="logo" />
+    <br><br><br>
+    <div class="company-name">شركة شهرزاد</div>
+  </div>
+
+  <!-- يسار -->
+  <div class="info-section">
+    <div class="info-box">شركة شهرزاد لصناعة وتجارة الألبسة الجاهزة سبورات نسائية - رجالي - ولادي</div>
+    <div class="info-box">للتواصل مع قسم المندوبات: 05525020593</div>
+    <div class="info-box">للتواصل مع قسم الجملة: 05364451356</div>
+    <div class="info-box">العنوان: تركيا / غازي عنتاب / شارشي سوق الذهب / عبارة رقم المحل 9</div>
+  </div>
+</div>
+
+<hr>
+
+<div class="title">مبيع نقدي</div>
+
+<hr>
+
+<!-- بيانات العميل -->
+<div class="customer">
+
+  <div class="cust-column">
+    <div><span class="cust-label">اسم العميل</span> <span class="cust-value">{{clientName}}</span></div>
+    <div><span class="cust-label">الهاتف</span> <span class="cust-value">{{clientPhone}}</span></div>
+    <div><span class="cust-label">العنوان</span> <span class="cust-value">{{clientAddress}}</span></div>
+  </div>
+
+  <div class="cust-column">
+    <div><span class="cust-label">طريقة الدفع</span> <span class="cust-value">{{paymentMethod}}</span></div>
+    <div><span class="cust-label">عنوان الشحن</span> <span class="cust-value">{{shippingAddress}}</span></div>
+  </div>
+
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>م</th>
+      <th style="width:40%">الوصف</th>
+      <th>اللون</th>
+      <th>المقاس</th>
+      <th>الكمية</th>
+      <th>سعر الوحدة</th>
+      <th>الإجمالي</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{items_rows}}
+  </tbody>
+</table>
+
+<div class="totals">
+  <div class="row">
+    <div class="total-label">مجموع الفاتورة</div>
+    <div class="total-value">{{totalAmount}}</div>
+  </div>
+
+  <div class="row">
+    <div class="total-label">الخصم</div>
+    <div class="total-value">{{discount}}</div>
+  </div>
+
+  <div class="row">
+    <div class="total-label">المدفوع</div>
+    <div class="total-value">{{paid}}</div>
+  </div>
+
+  <div class="row">
+    <div class="total-label"><strong>الصافي</strong></div>
+    <div class="total-value"><strong>{{net}}</strong></div>
+  </div>
+</div>
+
+<div class="footer">
+  {{footerText}} — تم طباعة هذه الفاتورة في {{printDateTime}}
+</div>
+
+</body>
+</html>

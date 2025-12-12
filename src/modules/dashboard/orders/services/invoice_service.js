@@ -1,260 +1,183 @@
-/**
- * Invoice Service - خدمة توليد الفواتير PDF
- * يدعم اللغة العربية والإنجليزية
- */
-
-const PDFDocument = require('pdfkit');
-const path = require('path');
 const fs = require('fs');
-const pool = require('../../../../config/dbconnect');
-const { settingsService } = require('../../../../config/database');
+const path = require('path');
+const puppeteer = require('puppeteer');
+const { query } = require('../../../../config/dbconnect');
 
-// مسار الخط العربي
-const ARABIC_FONT_PATH = path.join(__dirname, '../../../../assets/fonts/NotoSansArabic-Regular.ttf');
+function numberWithCommas(x) {
+  if (x === null || x === undefined) return '';
+  return Number(x).toLocaleString('en-US');
+}
 
-/**
- * جلب بيانات الطلب الكاملة للفاتورة
- */
-const getOrderDataForInvoice = async (orderId) => {
-  const orders = await pool.query(`
-    SELECT 
-      o.*,
-      u.full_name,
-      u.phone,
-      u.email,
-      u.customer_code,
-      i.invoice_number,
-      i.issue_date,
-      i.status as invoice_status
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function readLogoData() {
+  const logoPath = path.join(__dirname, '../templates/assets/logo.jpg');
+  try {
+    const b = fs.readFileSync(logoPath);
+    const ext = path.extname(logoPath).replace('.', '') || 'png';
+    return `data:image/${ext};base64,${b.toString('base64')}`;
+  } catch (e) {
+    return '';
+  }
+}
+
+async function getOrderFromDB(orderId) {
+  const orderSql = `
+    SELECT o.*, inv.invoice_number, inv.issue_date, inv.status AS invoice_status,
+           u.user_id AS customer_user_id, u.full_name, u.phone, u.invoice_image, u.email
     FROM orders o
-    JOIN users u ON o.user_id = u.user_id
-    LEFT JOIN invoices i ON o.order_id = i.order_id
+    LEFT JOIN invoices inv ON inv.order_id = o.order_id
+    LEFT JOIN users u ON u.user_id = o.user_id
     WHERE o.order_id = ?
-  `, [orderId]);
+    LIMIT 1
+  `;
+  const orderRows = await query(orderSql, [orderId]);
+  if (!orderRows || orderRows.length === 0) throw new Error('Order not found');
+  const ord = orderRows[0];
 
-  if (!orders.length) return null;
-  const order = orders[0];
-
-  const items = await pool.query(`
-    SELECT 
-      oi.*,
-      p.product_name,
-      p.product_code,
-      pc.color_name,
-      ps.size_value
+  const itemsSql = `
+    SELECT oi.*, p.product_name, p.product_code,
+           pc.color_name, pc.color_value,
+           ps.size_value,
+           pi.image_url
     FROM order_items oi
-    JOIN products p ON oi.product_id = p.product_id
-    JOIN product_colors pc ON oi.color_id = pc.color_id
-    JOIN product_sizes ps ON oi.size_id = ps.size_id
+    LEFT JOIN products p ON p.product_id = oi.product_id
+    LEFT JOIN product_colors pc ON pc.color_id = oi.color_id
+    LEFT JOIN product_sizes ps ON ps.size_id = oi.size_id
+    LEFT JOIN product_images pi ON pi.product_id = p.product_id AND pi.is_main = 1
     WHERE oi.order_id = ?
-  `, [orderId]);
+  `;
+  const itemsRows = await query(itemsSql, [orderId]);
 
-  return { ...order, items };
-};
+  const items = (itemsRows || []).map(i => ({
+    item_id: i.item_id,
+    product_id: i.product_id,
+    product_name: i.product_name || '',
+    product_code: i.product_code || '',
+    color_name: i.color_name || '',
+    color_value: i.color_value || '',
+    size_value: i.size_value || '',
+    quantity: i.quantity,
+    price_at_purchase: i.price_at_purchase,
+    total: (i.quantity || 0) * (i.price_at_purchase || 0),
+    image_url: i.image_url || ''
+  }));
 
-/**
- * توليد فاتورة PDF
- */
-const generateInvoicePDF = async (orderId) => {
-  const orderData = await getOrderDataForInvoice(orderId);
+  const totals = {
+    totalAmount: ord.total_amount || 0,
+    discount: ord.discount_amount || 0,
+    paid: ord.paid || 0,
+    net: (ord.total_amount || 0) - (ord.discount_amount || 0) - (ord.paid || 0)
+  };
 
-  if (!orderData) {
-    throw new Error('Order not found');
+  return {
+    order_id: ord.order_id,
+    user_id: ord.user_id,
+    total_amount: ord.total_amount,
+    status: ord.status,
+    shipping_address: ord.shipping_address,
+    payment_method: ord.payment_method,
+    created_at: ord.created_at,
+    updated_at: ord.updated_at,
+    coupon_id: ord.coupon_id,
+    discount_amount: ord.discount_amount,
+    confirmed_by: ord.confirmed_by,
+    customer_note: ord.customer_note,
+    cart_note: ord.cart_note,
+    currency: ord.currency || 'TRY',
+    invoice_number: ord.invoice_number || `ORD-${ord.order_id}`,
+    issue_date: ord.issue_date || ord.created_at,
+    invoice_status: ord.invoice_status || null,
+    customer: {
+      user_id: ord.customer_user_id,
+      full_name: ord.full_name,
+      phone: ord.phone,
+      email: ord.email,
+      invoice_image: ord.invoice_image
+    },
+    items,
+    totals
+  };
+}
+
+async function generateItemsRows(items) {
+  let rows = '';
+  let idx = 1;
+  for (const it of items) {
+    rows += `<tr>
+      <td>${idx}</td>
+      <td class="rtl-left">${escapeHtml(it.product_name)}<br/><small>رمز: ${escapeHtml(it.product_code)}</small></td>
+      <td>${escapeHtml(it.color_name)}</td>
+      <td>${escapeHtml(it.size_value)}</td>
+      <td>${it.quantity || 0}</td>
+      <td>${numberWithCommas(it.price_at_purchase || 0)}</td>
+      <td>${numberWithCommas(it.total || 0)}</td>
+    </tr>`;
+    idx++;
+  }
+  return rows;
+}
+
+async function generateInvoicePDF(orderId) {
+  const order = await getOrderFromDB(orderId);
+  const templatePath = path.join(__dirname, '../templates/invoice_template.html');
+  let html = fs.readFileSync(templatePath, 'utf8');
+
+  const logoData = await readLogoData();
+  const items_rows = await generateItemsRows(order.items || []);
+  const printDateTime = new Date().toLocaleString('en-GB', { hour12: false });
+
+  const replacements = {
+    '{{companyName}}': process.env.COMPANY_NAME || 'شركة شهرزاد',
+    '{{contactPhone}}': process.env.COMPANY_PHONE || '',
+    '{{companyAddress}}': process.env.COMPANY_ADDRESS || '',
+    '{{logoData}}': logoData || '',
+    '{{date}}': (new Date(order.issue_date || order.created_at)).toLocaleDateString('en-GB'),
+    '{{time}}': (new Date(order.issue_date || order.created_at)).toLocaleTimeString('en-GB', { hour12: false }),
+    '{{invoiceNumber}}': order.invoice_number || order.order_id,
+    '{{currency}}': order.currency || 'TRY',
+    '{{clientName}}': order.customer?.full_name || '',
+    '{{clientAddress}}': order.shipping_address || '',
+    '{{clientPhone}}': order.customer?.phone || '',
+    '{{paymentMethod}}': order.payment_method || '',
+    '{{shippingAddress}}': order.shipping_address || '',
+    '{{items_rows}}': items_rows,
+    '{{totalAmount}}': numberWithCommas(order.totals.totalAmount || 0),
+    '{{discount}}': numberWithCommas(order.totals.discount || 0),
+    '{{paid}}': numberWithCommas(order.totals.paid || 0),
+    '{{net}}': numberWithCommas(order.totals.net || 0),
+    '{{footerText}}': process.env.INVOICE_FOOTER || '',
+    '{{printDateTime}}': printDateTime
+  };
+
+  for (const [key, val] of Object.entries(replacements)) {
+    html = html.split(key).join(val);
   }
 
-  const storeName = await settingsService.get('store_name') || 'Shehrezad';
-  const storePhone = await settingsService.get('store_phone') || '';
-  const storeAddress = await settingsService.get('store_address') || '';
+  const launchOptions = {
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+  };
 
-  // التحقق من وجود الخط العربي
-  const hasArabicFont = fs.existsSync(ARABIC_FONT_PATH);
+  const browser = await puppeteer.launch(launchOptions);
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
 
-  return new Promise((resolve, reject) => {
-    try {
-      const chunks = [];
-      const doc = new PDFDocument({
-        size: 'A4',
-        margin: 50,
-        info: {
-          Title: `Invoice ${orderData.invoice_number || orderId}`,
-          Author: storeName
-        }
-      });
-
-      doc.on('data', chunk => chunks.push(chunk));
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
-      doc.on('error', reject);
-
-      // تسجيل الخط العربي
-      if (hasArabicFont) {
-        doc.registerFont('Arabic', ARABIC_FONT_PATH);
-      }
-
-      // دالة مساعدة للنص - استخدام الخط العربي إذا كان النص يحتوي على عربي
-      const hasArabic = (text) => /[\u0600-\u06FF]/.test(text);
-      const writeText = (text, options = {}) => {
-        const str = String(text || '');
-        if (hasArabicFont && hasArabic(str)) {
-          doc.font('Arabic');
-        } else {
-          doc.font('Helvetica');
-        }
-        doc.text(str, options);
-        doc.font('Helvetica');
-      };
-
-      // ===== رأس الفاتورة =====
-      doc.fontSize(24);
-      writeText(storeName, { align: 'center' });
-      doc.moveDown(0.5);
-      doc.fontSize(10);
-      writeText(storePhone, { align: 'center' });
-      writeText(storeAddress, { align: 'center' });
-      doc.moveDown();
-
-      // خط فاصل
-      doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-      doc.moveDown();
-
-      // ===== عنوان الفاتورة =====
-      doc.fontSize(20).font('Helvetica-Bold').text('INVOICE', { align: 'center' });
-      doc.font('Helvetica');
-      doc.moveDown();
-
-      const invoiceInfoY = doc.y;
-
-      // معلومات الفاتورة (يسار)
-      doc.fontSize(10);
-      doc.text(`Invoice #: ${orderData.invoice_number || 'N/A'}`, 50, invoiceInfoY);
-      doc.text(`Date: ${new Date(orderData.created_at).toLocaleDateString('en-US')}`, 50);
-      doc.text(`Order ID: ${orderData.order_id}`, 50);
-
-      // معلومات العميل (يمين)
-      doc.text('Customer:', 300, invoiceInfoY);
-      // اسم العميل (قد يكون عربي)
-      if (hasArabicFont && hasArabic(orderData.full_name)) {
-        doc.font('Arabic');
-      }
-      doc.text(orderData.full_name || 'N/A', 360, doc.y - 12);
-      doc.font('Helvetica');
-      doc.text(`Code: ${orderData.customer_code || 'N/A'}`, 300);
-      doc.text(`Phone: ${orderData.phone || 'N/A'}`, 300);
-
-      doc.moveDown(2);
-
-      // ===== جدول المنتجات =====
-      const tableTop = doc.y;
-      const tableHeaders = ['#', 'Product', 'Color', 'Size', 'Qty', 'Price', 'Total'];
-      const colWidths = [25, 165, 70, 45, 35, 70, 85];
-      let xPos = 50;
-
-      // رأس الجدول
-      doc.rect(50, tableTop, 495, 20).fill('#e0e0e0');
-      doc.fillColor('#000000');
-
-      doc.font('Helvetica-Bold').fontSize(9);
-      tableHeaders.forEach((header, i) => {
-        doc.text(header, xPos + 3, tableTop + 5, { width: colWidths[i] - 6 });
-        xPos += colWidths[i];
-      });
-      doc.font('Helvetica').fontSize(9);
-
-      // صفوف المنتجات
-      let rowY = tableTop + 25;
-      orderData.items.forEach((item, index) => {
-        xPos = 50;
-        const itemPrice = parseFloat(item.price_at_purchase || 0);
-
-        // الخلفية للصفوف الفردية
-        if (index % 2 === 1) {
-          doc.rect(50, rowY - 3, 495, 18).fill('#f5f5f5');
-          doc.fillColor('#000000');
-        }
-
-        // رقم الصف
-        doc.text((index + 1).toString(), xPos + 3, rowY, { width: colWidths[0] - 6 });
-        xPos += colWidths[0];
-
-        // اسم المنتج (قد يكون عربي)
-        const productName = item.product_name || item.product_code || '-';
-        if (hasArabicFont && hasArabic(productName)) {
-          doc.font('Arabic');
-        }
-        doc.text(productName, xPos + 3, rowY, { width: colWidths[1] - 6, lineBreak: false });
-        doc.font('Helvetica');
-        xPos += colWidths[1];
-
-        // اللون (قد يكون عربي)
-        const colorName = item.color_name || '-';
-        if (hasArabicFont && hasArabic(colorName)) {
-          doc.font('Arabic');
-        }
-        doc.text(colorName, xPos + 3, rowY, { width: colWidths[2] - 6 });
-        doc.font('Helvetica');
-        xPos += colWidths[2];
-
-        // المقاس
-        doc.text(item.size_value || '-', xPos + 3, rowY, { width: colWidths[3] - 6 });
-        xPos += colWidths[3];
-
-        // الكمية
-        doc.text(item.quantity.toString(), xPos + 3, rowY, { width: colWidths[4] - 6 });
-        xPos += colWidths[4];
-
-        // السعر
-        doc.text(`${itemPrice.toFixed(2)}`, xPos + 3, rowY, { width: colWidths[5] - 6 });
-        xPos += colWidths[5];
-
-        // الإجمالي
-        doc.text(`${(itemPrice * item.quantity).toFixed(2)}`, xPos + 3, rowY, { width: colWidths[6] - 6 });
-
-        rowY += 20;
-      });
-
-      // خط فاصل تحت الجدول
-      doc.moveTo(50, rowY + 5).lineTo(545, rowY + 5).stroke();
-
-      // ===== الإجماليات =====
-      const totalsY = rowY + 25;
-      doc.fontSize(11);
-
-      const totalAmount = parseFloat(orderData.total_amount || 0);
-      const discountAmount = parseFloat(orderData.discount_amount || 0);
-      const subtotal = totalAmount + discountAmount;
-
-      // Subtotal
-      doc.text('Subtotal:', 380, totalsY);
-      doc.text(`${subtotal.toFixed(2)} TRY`, 460, totalsY, { align: 'right', width: 85 });
-
-      // Discount
-      let currentY = totalsY + 18;
-      if (discountAmount > 0) {
-        doc.fillColor('#cc0000');
-        doc.text('Discount:', 380, currentY);
-        doc.text(`-${discountAmount.toFixed(2)} TRY`, 460, currentY, { align: 'right', width: 85 });
-        doc.fillColor('#000000');
-        currentY += 18;
-      }
-
-      // Total
-      doc.fontSize(13).font('Helvetica-Bold');
-      doc.text('TOTAL:', 380, currentY);
-      doc.text(`${totalAmount.toFixed(2)} TRY`, 460, currentY, { align: 'right', width: 85 });
-      doc.font('Helvetica');
-
-      // ===== تذييل الفاتورة =====
-      doc.fontSize(10);
-      doc.text('Thank you for your business!', 50, 720, { align: 'center', width: 495 });
-
-      doc.end();
-
-    } catch (error) {
-      reject(error);
-    }
+  const pdfBuffer = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: { top: '18mm', bottom: '18mm', left: '12mm', right: '12mm' }
   });
-};
 
-module.exports = {
-  generateInvoicePDF,
-  getOrderDataForInvoice
-};
+  await browser.close();
+  return pdfBuffer;
+}
+
+module.exports = { generateInvoicePDF };

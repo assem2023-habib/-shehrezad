@@ -1,0 +1,726 @@
+{
+    "info": {
+        "_postman_id": "shehrezad-employee-collection",
+        "name": "Shehrezad Employee API",
+        "description": "مجموعة اختبار API للموظفين في شهرزاد",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "employeeToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "supportToken",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": " Auth",
+            "item": [
+                {
+                    "name": "Employee Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('employeeToken', jsonData.data.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"employee@shehrezad.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "تسجيل دخول الموظف"
+                    }
+                },
+                {
+                    "name": "Get User Info",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/get-userinfo",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "get-userinfo"
+                            ]
+                        },
+                        "description": "جلب معلومات الموظف الحالي"
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "تسجيل خروج الموظف"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛒 Carts Management",
+            "item": [
+                {
+                    "name": "Get All Carts",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts"
+                            ]
+                        },
+                        "description": "جلب جميع السلات"
+                    }
+                },
+                {
+                    "name": "Get All Cart Items (Real-time)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/items",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "items"
+                            ]
+                        },
+                        "description": "جلب جميع عناصر السلات"
+                    }
+                },
+                {
+                    "name": "Get Pending Carts (15+ days)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/pending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "pending"
+                            ]
+                        },
+                        "description": "جلب السلات المعلقة منذ 15 يوم أو أكثر"
+                    }
+                },
+                {
+                    "name": "Get Cart Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "1"
+                            ]
+                        },
+                        "description": "جلب تفاصيل سلة محددة"
+                    }
+                },
+                {
+                    "name": "Search Carts",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/search?cart_code=CART-20251208-00002",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "cart_code",
+                                    "value": "CART-20251208-00002"
+                                }
+                            ]
+                        },
+                        "description": "البحث عن السلات"
+                    }
+                },
+                {
+                    "name": "Search Cart Items",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/1/items/search?product_code=PROD001",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "1",
+                                "items",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "product_code",
+                                    "value": "PROD001"
+                                }
+                            ]
+                        },
+                        "description": "البحث عن عناصر السلة"
+                    }
+                },
+                {
+                    "name": "Confirm Cart (by Code)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cart_code\": \"CART-20251208-00002\",\n  \"paid_amount\": 4000,\n  \"shipping_address\": \"دمشق - المزة - شارع 14\",\n  \"payment_method\": \"cod\",\n  \"currency\": \"TRY\",\n  \"customer_note\": \"ملاحظة من العميل\",\n  \"cart_note\": \"ملاحظة حول السلة\",\n  \"grand_total\": 3001\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/confirm",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "confirm"
+                            ]
+                        },
+                        "description": "تأكيد السلة"
+                    }
+                },
+                {
+                    "name": "Create Cart (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"user_id\": 1,\n  \"status\": \"active\",\n  \"items\": [\n    { \n      \"product_id\": 1, \n      \"color_id\": 1, \n      \"size_id\": 1, \n      \"quantity\": 2 \n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts"
+                            ]
+                        },
+                        "description": "إنشاء سلة جديدة"
+                    }
+                },
+                {
+                    "name": "Update Cart (Admin)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"active\",\n  \"add_items\": [\n    { \n      \"product_id\": 2, \n      \"color_id\": 3, \n      \"size_id\": 5, \n      \"quantity\": 1 \n    }\n  ],\n  \"update_items\": [\n    { \n      \"item_id\": 1, \n      \"quantity\": 4 \n    }\n  ],\n  \"remove_item_ids\": [2]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "1"
+                            ]
+                        },
+                        "description": "تحديث السلة"
+                    }
+                },
+                {
+                    "name": "Delete Cart (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/carts/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "carts",
+                                "1"
+                            ]
+                        },
+                        "description": "حذف السلة"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📦 Orders Management",
+            "item": [
+                {
+                    "name": "Get All Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders"
+                            ]
+                        },
+                        "description": "جلب جميع الطلبات"
+                    }
+                },
+                {
+                    "name": "Get Order Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders",
+                                "1"
+                            ]
+                        },
+                        "description": "جلب تفاصيل طلب محدد"
+                    }
+                },
+                {
+                    "name": "Search Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders/search?invoice_number=INV-20251208-00001",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "invoice_number",
+                                    "value": "INV-20251208-00001"
+                                }
+                            ]
+                        },
+                        "description": "البحث عن الطلبات"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🎟️ Coupons Management",
+            "item": [
+                {
+                    "name": "Get All Coupons",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "جلب جميع الكوبونات"
+                    }
+                },
+                {
+                    "name": "Get Coupon Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons",
+                                "1"
+                            ]
+                        },
+                        "description": "جلب تفاصيل كوبون محدد"
+                    }
+                },
+                {
+                    "name": "Create Coupon",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"code\": \"NEWYEAR25\",\n  \"discount_type\": \"percentage\",\n  \"discount_value\": 25,\n  \"min_purchase_amount\": 100,\n  \"max_discount_amount\": 500,\n  \"start_date\": \"2024-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"usage_limit\": 1000,\n  \"status\": \"active\",\n  \"target_audience\": \"all\",\n  \"target_products_type\": \"all\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "إنشاء كوبون جديد"
+                    }
+                },
+                {
+                    "name": "Update Coupon",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"discount_value\": 60,\n  \"min_purchase_amount\": 300,\n  \"usage_limit\": 100,\n  \"target_audience\": \"specific_users\",\n  \"customer_ids\": [3, 4],\n  \"target_products_type\": \"specific_products\",\n  \"product_ids\": [5, 6]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons",
+                                "1"
+                            ]
+                        },
+                        "description": "تحديث كوبون"
+                    }
+                },
+                {
+                    "name": "Toggle Coupon Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons/1/toggle",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons",
+                                "1",
+                                "toggle"
+                            ]
+                        },
+                        "description": "تبديل حالة الكوبون"
+                    }
+                },
+                {
+                    "name": "Delete Coupon",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons",
+                                "1"
+                            ]
+                        },
+                        "description": "حذف كوبون"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "⚙️ Settings",
+            "item": [
+                {
+                    "name": "Get All Settings",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings"
+                            ]
+                        },
+                        "description": "جلب جميع الإعدادات"
+                    }
+                },
+                {
+                    "name": "Update Setting",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"setting_key\": \"SUPPORT_STAFF_NUMBERS\",\n  \"setting_value\": \"[\\\"0123456789\\\", \\\"0987654321\\\"]\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings"
+                            ]
+                        },
+                        "description": "تحديث إعداد"
+                    }
+                }
+            ]
+        }
+    ]
+}
