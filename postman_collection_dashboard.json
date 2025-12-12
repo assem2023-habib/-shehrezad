@@ -874,31 +874,6 @@
                     }
                 },
                 {
-                    "name": "Get All Cart Items (Real-time)",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{adminToken}}"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{baseUrl}}/api/dashboard/carts/items",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "api",
-                                "dashboard",
-                                "carts",
-                                "items"
-                            ]
-                        },
-                        "description": "جلب جميع عناصر السلات"
-                    }
-                },
-                {
                     "name": "Get Pending Carts (15+ days)",
                     "request": {
                         "method": "GET",
@@ -1218,6 +1193,92 @@
                             ]
                         },
                         "description": "البحث عن الطلبات"
+                    }
+                },
+                {
+                    "name": "Update Order Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"shipped\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders/1/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders",
+                                "1",
+                                "status"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Download Invoice PDF",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders",
+                                "1",
+                                "invoice"
+                            ]
+                        },
+                        "description": "تحميل فاتورة PDF للطلب"
+                    }
+                },
+                {
+                    "name": "View Invoice PDF (in Browser)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/orders/1/invoice/view",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "orders",
+                                "1",
+                                "invoice",
+                                "view"
+                            ]
+                        },
+                        "description": "عرض الفاتورة في المتصفح"
                     }
                 }
             ]
