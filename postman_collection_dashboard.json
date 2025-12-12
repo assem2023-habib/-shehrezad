@@ -1,7 +1,7 @@
 {
     "info": {
         "_postman_id": "shehrezad-dashboard-collection",
-        "name": "Shehrezad Dashboard API",
+        "name": "Shehrezad Super Admin API",
         "description": "مجموعة اختبار API لوحة التحكم شهرزاد",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
@@ -119,48 +119,7 @@
                     }
                 },
                 {
-                    "name": "Employee Login",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "if (pm.response.code === 200) {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"email\": \"employee@shehrezad.com\",\n    \"password\": \"password123\"\n}"
-                        },
-                        "url": {
-                            "raw": "{{baseUrl}}/auth/login",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "login"
-                            ]
-                        },
-                        "description": "تسجيل دخول الموظف"
-                    }
-                },
-                {
-                    "name": "Get User Info",
+                    "name": "Get Info",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -208,7 +167,7 @@
             ]
         },
         {
-            "name": "👥 Dashboard - Customers",
+            "name": "👥 Customers",
             "item": [
                 {
                     "name": "Create Customer",
@@ -379,7 +338,7 @@
             ]
         },
         {
-            "name": "👔 Dashboard - Admins (Super Admin Only)",
+            "name": "👔 Employee",
             "item": [
                 {
                     "name": "Create Admin",
@@ -459,6 +418,430 @@
                             ]
                         },
                         "description": "لا يمكن حذف حسابك الخاص"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📦 Products",
+            "item": [
+                {
+                    "name": "Get Products (Search & Filter)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/products?search=فستان&availability_status=visible",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "فستان"
+                                },
+                                {
+                                    "key": "availability_status",
+                                    "value": "visible"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "description": "عرض المنتجات مع البحث والفلترة (بما في ذلك المخفية)"
+                    }
+                },
+                {
+                    "name": "Get Product by ID (Dashboard)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/products/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "products",
+                                "1"
+                            ]
+                        },
+                        "description": "عرض تفاصيل منتج للوحة التحكم (بما في ذلك المخفية)"
+                    }
+                },
+                {
+                    "name": "Add Product (with Images)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "product_name",
+                                    "value": "فستان صيفي",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "product_description",
+                                    "value": "فستان صيفي أنيق",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "product_category",
+                                    "value": "women",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_usd",
+                                    "value": "50",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_try",
+                                    "value": "850",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_syp",
+                                    "value": "500000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "colors",
+                                    "value": "[{\"color_name\":\"أحمر\",\"color_value\":\"#FF0000\",\"sizes\":[{\"size_value\":\"S\",\"quantity\":10},{\"size_value\":\"M\",\"quantity\":5}]}]",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "images",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/add-product",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "add-product"
+                            ]
+                        },
+                        "description": "إضافة منتج جديد مع صور - الكود يتم توليده تلقائياً (PRD-XXXXXX). أول صورة تصبح الصورة الرئيسية."
+                    }
+                },
+                {
+                    "name": "Update Product (with Images)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "product_code",
+                                    "value": "PRD-ABC123",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "product_name",
+                                    "value": "فستان صيفي محدث",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "product_description",
+                                    "value": "فستان صيفي أنيق - تم التحديث",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "product_category",
+                                    "value": "women",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_usd",
+                                    "value": "55",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_try",
+                                    "value": "900",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "price_syp",
+                                    "value": "550000",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "colors",
+                                    "value": "[{\"color_id\":1,\"color_name\":\"أحمر غامق\",\"color_value\":\"#CC0000\",\"sizes\":[{\"size_id\":1,\"size_value\":\"S\",\"quantity\":15}]}]",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "images",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/update-product/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "update-product",
+                                "1"
+                            ]
+                        },
+                        "description": "تعديل منتج مع إضافة صور جديدة - يمكن إضافة/تعديل/حذف الألوان والمقاسات"
+                    }
+                },
+                {
+                    "name": "Delete Product",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/delete/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "delete",
+                                "1"
+                            ]
+                        },
+                        "description": "حذف منتج مع جميع الألوان والمقاسات والصور المرتبطة"
+                    }
+                },
+                {
+                    "name": "Upload Product Images",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "images",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/images/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "images",
+                                "upload"
+                            ]
+                        },
+                        "description": "رفع صور إضافية لمنتج موجود (الحد الأقصى 20 صورة)"
+                    }
+                },
+                {
+                    "name": "Delete Product Images",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"product_id\": 1,\n    \"image_ids\": [1, 2]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/images/delete",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "images",
+                                "delete"
+                            ]
+                        },
+                        "description": "حذف صور من منتج"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💰 Debts",
+            "item": [
+                {
+                    "name": "Get All Customers With Debts",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Customer Debt History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts/2",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts",
+                                "2"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Record Payment to Customer Balance",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user_id\": 2,\n    \"amount\": 500\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts/payment",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts",
+                                "payment"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Record Payment to Specific Debt",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 200\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts/1/payment",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts",
+                                "1",
+                                "payment"
+                            ]
+                        }
                     }
                 }
             ]
@@ -1005,6 +1388,133 @@
                             ]
                         },
                         "description": "حذف كوبون"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌟 Reviews",
+            "item": [
+                {
+                    "name": "Get Reviews Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/reviews/statistics",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "reviews",
+                                "statistics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Pending Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/reviews/pending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "reviews",
+                                "pending"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Reviews (All Statuses)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/reviews/all",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "reviews",
+                                "all"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Approve Review",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/reviews/1/approve",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "reviews",
+                                "1",
+                                "approve"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Reject Review",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/reviews/1/reject",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "reviews",
+                                "1",
+                                "reject"
+                            ]
+                        }
                     }
                 }
             ]

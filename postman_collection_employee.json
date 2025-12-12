@@ -662,10 +662,10 @@
             ]
         },
         {
-            "name": "⚙️ Settings",
+            "name": "💰 Dashboard - Debts",
             "item": [
                 {
-                    "name": "Get All Settings",
+                    "name": "Get All Customers With Debts",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -675,23 +675,46 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/dashboard/settings",
+                            "raw": "{{baseUrl}}/api/dashboard/debts",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "dashboard",
-                                "settings"
+                                "debts"
                             ]
-                        },
-                        "description": "جلب جميع الإعدادات"
+                        }
                     }
                 },
                 {
-                    "name": "Update Setting",
+                    "name": "Get Customer Debt History",
                     "request": {
-                        "method": "PUT",
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts/2",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts",
+                                "2"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Record Payment to Customer Balance",
+                    "request": {
+                        "method": "POST",
                         "header": [
                             {
                                 "key": "Authorization",
@@ -704,20 +727,53 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"setting_key\": \"SUPPORT_STAFF_NUMBERS\",\n  \"setting_value\": \"[\\\"0123456789\\\", \\\"0987654321\\\"]\"\n}"
+                            "raw": "{\n    \"user_id\": 2,\n    \"amount\": 500\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/dashboard/settings",
+                            "raw": "{{baseUrl}}/api/dashboard/debts/payment",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "dashboard",
-                                "settings"
+                                "debts",
+                                "payment"
                             ]
+                        }
+                    }
+                },
+                {
+                    "name": "Record Payment to Specific Debt",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{employeeToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 200\n}"
                         },
-                        "description": "تحديث إعداد"
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/debts/1/payment",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "debts",
+                                "1",
+                                "payment"
+                            ]
+                        }
                     }
                 }
             ]
