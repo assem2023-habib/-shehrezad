@@ -934,7 +934,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"product_id\": 1,\n    \"order_id\": 1,\n    \"rating\": 5,\n    \"comment\": \"منتج رائع جداً وأنصح به!\"\n}"
+                            "raw": "{\n    \"product_id\": 1,\n    \"rating\": 5,\n    \"comment\": \"منتج رائع جداً وأنصح به!\"\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/reviews",

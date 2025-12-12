@@ -7,10 +7,10 @@ const { REVIEW_STATUS, ORDER_STATUS, HTTP_STATUS } = require('../../../../config
 
 /**
  * إضافة تقييم جديد للمنتج
- * يمكن للعميل تقييم المنتج فقط إذا اشتراه
+ * أي مستخدم مسجل يمكنه تقييم أي منتج
  */
 const addReview = async (userId, reviewData) => {
-    const { product_id, order_id, rating, comment } = reviewData;
+    const { product_id, rating, comment } = reviewData;
 
     // التحقق من صحة التقييم (1-5)
     if (rating < 1 || rating > 5) {
@@ -19,24 +19,10 @@ const addReview = async (userId, reviewData) => {
         throw error;
     }
 
-    // التحقق من أن العميل اشترى هذا المنتج
-    const purchaseCheck = await pool.query(`
-    SELECT oi.item_id, o.status
-    FROM order_items oi
-    JOIN orders o ON oi.order_id = o.order_id
-    WHERE o.user_id = ? AND oi.product_id = ? AND oi.order_id = ?
-  `, [userId, product_id, order_id]);
-
-    if (!purchaseCheck.length) {
-        const error = new Error('لا يمكنك تقييم منتج لم تشتريه');
-        error.status = HTTP_STATUS.FORBIDDEN;
-        throw error;
-    }
-
-    // التحقق من عدم وجود تقييم سابق لنفس المنتج والطلب
+    // التحقق من عدم وجود تقييم سابق لنفس المستخدم والمنتج
     const existingReview = await pool.query(
-        'SELECT review_id FROM reviews WHERE user_id = ? AND product_id = ? AND order_id = ?',
-        [userId, product_id, order_id]
+        'SELECT review_id FROM reviews WHERE user_id = ? AND product_id = ?',
+        [userId, product_id]
     );
 
     if (existingReview.length > 0) {
@@ -45,20 +31,19 @@ const addReview = async (userId, reviewData) => {
         throw error;
     }
 
-    // إضافة التقييم
+    // إضافة التقييم بدون طلب مطلوب
     const result = await pool.query(`
-    INSERT INTO reviews (product_id, user_id, order_id, rating, comment, status)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `, [product_id, userId, order_id, rating, comment || null, REVIEW_STATUS.PENDING]);
+    INSERT INTO reviews (product_id, user_id, rating, comment, status)
+    VALUES (?, ?, ?, ?, ?)
+  `, [product_id, userId, rating, comment || null, REVIEW_STATUS.APPROVED]);
 
     return {
         review_id: result.insertId,
         product_id,
         user_id: userId,
-        order_id,
         rating,
         comment: comment || null,
-        status: REVIEW_STATUS.PENDING
+        status: REVIEW_STATUS.APPROVED
     };
 };
 
@@ -228,37 +213,25 @@ const deleteReview = async (userId, reviewId) => {
 
 /**
  * التحقق من إمكانية تقييم المنتج
+ * أي مستخدم مسجل يمكنه تقييم أي منتج
  */
 const canReviewProduct = async (userId, productId) => {
-    // التحقق من أن العميل اشترى المنتج
-    const purchases = await pool.query(`
-    SELECT DISTINCT oi.order_id, o.created_at as order_date
-    FROM order_items oi
-    JOIN orders o ON oi.order_id = o.order_id
-    WHERE o.user_id = ? AND oi.product_id = ? AND o.status IN ('completed', 'shipped', 'delivered')
-    ORDER BY o.created_at DESC
-  `, [userId, productId]);
-
-    if (!purchases.length) {
-        return {
-            can_review: false,
-            reason: 'لم تقم بشراء هذا المنتج بعد'
-        };
-    }
-
-    // التحقق من التقييمات الموجودة
-    const existingReviews = await pool.query(
-        'SELECT order_id FROM reviews WHERE user_id = ? AND product_id = ?',
+    // التحقق من وجود تقييم سابق
+    const existingReview = await pool.query(
+        'SELECT review_id FROM reviews WHERE user_id = ? AND product_id = ?',
         [userId, productId]
     );
 
-    const reviewedOrderIds = existingReviews.map(r => r.order_id);
-    const availableOrders = purchases.filter(p => !reviewedOrderIds.includes(p.order_id));
+    if (existingReview.length > 0) {
+        return {
+            can_review: false,
+            reason: 'لقد قمت بتقييم هذا المنتج مسبقاً'
+        };
+    }
 
     return {
-        can_review: availableOrders.length > 0,
-        available_orders: availableOrders,
-        reason: availableOrders.length === 0 ? 'لقد قمت بتقييم جميع طلباتك لهذا المنتج' : null
+        can_review: true,
+        reason: null
     };
 };
 

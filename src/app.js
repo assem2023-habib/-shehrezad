@@ -86,6 +86,8 @@ app.use('/api/dashboard/debts', require('./modules/dashboard/debts/routes/debts_
 // الكوبونات
 app.use('/api/dashboard/coupons', require('./modules/dashboard/coupons/routes/coupon_routes'));
 
+// الإشعارات
+app.use('/api/notifications', require('./modules/notifications/routes/notification_routes'));
 
 // =====================
 // Shared Routes / Other

@@ -1,8 +1,8 @@
 const { query } = require('./connection');
 
 async function createUsersTables() {
-    // جدول المستخدمين
-    await query(`
+  // جدول المستخدمين
+  await query(`
     CREATE TABLE IF NOT EXISTS users (
       user_id INT AUTO_INCREMENT PRIMARY KEY,
       full_name VARCHAR(50) NOT NULL,
@@ -16,10 +16,10 @@ async function createUsersTables() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `);
-    console.log("✅ Table 'users' created");
+  console.log("✅ Table 'users' created");
 
-    // جدول التوكنات الملغية
-    await query(`
+  // جدول التوكنات الملغية
+  await query(`
     CREATE TABLE IF NOT EXISTS invalid_tokens (
       id INT AUTO_INCREMENT PRIMARY KEY,
       token TEXT NOT NULL,
@@ -27,12 +27,12 @@ async function createUsersTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-    console.log("✅ Table 'invalid_tokens' created");
+  console.log("✅ Table 'invalid_tokens' created");
 }
 
 async function createProductsTables() {
-    // جدول المنتجات
-    await query(`
+  // جدول المنتجات
+  await query(`
     CREATE TABLE IF NOT EXISTS products (
       product_id INT AUTO_INCREMENT PRIMARY KEY,
       product_code VARCHAR(50) UNIQUE NOT NULL,
@@ -49,10 +49,10 @@ async function createProductsTables() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `);
-    console.log("✅ Table 'products' created");
+  console.log("✅ Table 'products' created");
 
-    // جدول صور المنتج
-    await query(`
+  // جدول صور المنتج
+  await query(`
     CREATE TABLE IF NOT EXISTS product_images (
       image_id INT AUTO_INCREMENT PRIMARY KEY,
       product_id INT NOT NULL,
@@ -63,10 +63,10 @@ async function createProductsTables() {
       FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'product_images' created");
+  console.log("✅ Table 'product_images' created");
 
-    // جدول ألوان المنتج
-    await query(`
+  // جدول ألوان المنتج
+  await query(`
     CREATE TABLE IF NOT EXISTS product_colors (
       color_id INT AUTO_INCREMENT PRIMARY KEY,
       product_id INT NOT NULL,
@@ -75,10 +75,10 @@ async function createProductsTables() {
       FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'product_colors' created");
+  console.log("✅ Table 'product_colors' created");
 
-    // جدول مقاسات المنتج
-    await query(`
+  // جدول مقاسات المنتج
+  await query(`
     CREATE TABLE IF NOT EXISTS product_sizes (
       size_id INT AUTO_INCREMENT PRIMARY KEY,
       color_id INT NOT NULL,
@@ -87,12 +87,12 @@ async function createProductsTables() {
       FOREIGN KEY (color_id) REFERENCES product_colors(color_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'product_sizes' created");
+  console.log("✅ Table 'product_sizes' created");
 }
 
 async function createSettingsTables() {
-    // جدول الإعدادات
-    await query(`
+  // جدول الإعدادات
+  await query(`
     CREATE TABLE IF NOT EXISTS settings (
       setting_id INT AUTO_INCREMENT PRIMARY KEY,
       setting_key VARCHAR(50) UNIQUE NOT NULL,
@@ -102,22 +102,22 @@ async function createSettingsTables() {
       updated_by INT NULL
     )
   `);
-    console.log("✅ Table 'settings' created");
+  console.log("✅ Table 'settings' created");
 
-    // إدخال الإعدادات الافتراضية
-    await query(`
+  // إدخال الإعدادات الافتراضية
+  await query(`
     INSERT IGNORE INTO settings (setting_key, setting_value, description) VALUES
     ('item_lock_minutes', '10', 'مدة السماح بحذف/تعديل العنصر بالدقائق'),
     ('cart_reminder_days', '15', 'عدد الأيام قبل إرسال تذكير الشحن'),
     ('max_cart_items', '50', 'الحد الأقصى لعناصر السلة'),
     ('max_images_per_product', '20', 'الحد الأقصى لصور المنتج')
   `);
-    console.log("✅ Default settings inserted");
+  console.log("✅ Default settings inserted");
 }
 
 async function createCartTables() {
-    // جدول السلة
-    await query(`
+  // جدول السلة
+  await query(`
     CREATE TABLE IF NOT EXISTS carts (
       cart_id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,
@@ -129,10 +129,10 @@ async function createCartTables() {
       FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'carts' created");
+  console.log("✅ Table 'carts' created");
 
-    // جدول عناصر السلة
-    await query(`
+  // جدول عناصر السلة
+  await query(`
     CREATE TABLE IF NOT EXISTS cart_items (
       item_id INT AUTO_INCREMENT PRIMARY KEY,
       cart_id INT NOT NULL,
@@ -149,10 +149,10 @@ async function createCartTables() {
       FOREIGN KEY (size_id) REFERENCES product_sizes(size_id)
     )
   `);
-    console.log("✅ Table 'cart_items' created");
+  console.log("✅ Table 'cart_items' created");
 
-    // جدول مستفيدي عناصر السلة
-    await query(`
+  // جدول مستفيدي عناصر السلة
+  await query(`
     CREATE TABLE IF NOT EXISTS cart_item_beneficiaries (
       beneficiary_id INT AUTO_INCREMENT PRIMARY KEY,
       item_id INT NOT NULL,
@@ -161,29 +161,12 @@ async function createCartTables() {
       FOREIGN KEY (item_id) REFERENCES cart_items(item_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'cart_item_beneficiaries' created");
-}
-
-async function createNotificationsTables() {
-    // جدول الإشعارات
-    await query(`
-    CREATE TABLE IF NOT EXISTS notifications (
-      notification_id INT AUTO_INCREMENT PRIMARY KEY,
-      user_id INT NOT NULL,
-      title VARCHAR(100) NOT NULL,
-      body TEXT,
-      type ENUM('cart_reminder', 'order_update', 'general') DEFAULT 'general',
-      is_read TINYINT DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-    )
-  `);
-    console.log("✅ Table 'notifications' created");
+  console.log("✅ Table 'cart_item_beneficiaries' created");
 }
 
 async function createOrdersTables() {
-    // جدول الطلبات
-    await query(`
+  // جدول الطلبات
+  await query(`
     CREATE TABLE IF NOT EXISTS orders (
       order_id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,
@@ -196,10 +179,10 @@ async function createOrdersTables() {
       FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'orders' created");
+  console.log("✅ Table 'orders' created");
 
-    // جدول عناصر الطلب
-    await query(`
+  // جدول عناصر الطلب
+  await query(`
     CREATE TABLE IF NOT EXISTS order_items (
       item_id INT AUTO_INCREMENT PRIMARY KEY,
       order_id INT NOT NULL,
@@ -214,10 +197,10 @@ async function createOrdersTables() {
       FOREIGN KEY (size_id) REFERENCES product_sizes(size_id)
     )
   `);
-    console.log("✅ Table 'order_items' created");
+  console.log("✅ Table 'order_items' created");
 
-    // جدول الفواتير
-    await query(`
+  // جدول الفواتير
+  await query(`
     CREATE TABLE IF NOT EXISTS invoices (
       invoice_id INT AUTO_INCREMENT PRIMARY KEY,
       order_id INT NOT NULL UNIQUE,
@@ -229,12 +212,12 @@ async function createOrdersTables() {
       FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'invoices' created");
+  console.log("✅ Table 'invoices' created");
 }
 
 async function createReviewsAndFavoriteTables() {
-    // جدول التقييمات
-    await query(`
+  // جدول التقييمات
+  await query(`
     CREATE TABLE IF NOT EXISTS reviews (
       review_id INT AUTO_INCREMENT PRIMARY KEY,
       product_id INT NOT NULL,
@@ -251,10 +234,10 @@ async function createReviewsAndFavoriteTables() {
       UNIQUE KEY unique_user_product_review (user_id, product_id, order_id)
     )
   `);
-    console.log("✅ Table 'reviews' created");
+  console.log("✅ Table 'reviews' created");
 
-    // جدول المفضلة
-    await query(`
+  // جدول المفضلة
+  await query(`
     CREATE TABLE IF NOT EXISTS favorites (
       favorite_id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,
@@ -265,12 +248,12 @@ async function createReviewsAndFavoriteTables() {
       UNIQUE KEY unique_user_product_favorite (user_id, product_id)
     )
   `);
-    console.log("✅ Table 'favorites' created");
+  console.log("✅ Table 'favorites' created");
 }
 
 async function createCouponsTables() {
-    // جدول الكوبونات
-    await query(`
+  // جدول الكوبونات
+  await query(`
     CREATE TABLE IF NOT EXISTS coupons (
       coupon_id INT AUTO_INCREMENT PRIMARY KEY,
       code VARCHAR(50) UNIQUE NOT NULL,
@@ -289,10 +272,10 @@ async function createCouponsTables() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `);
-    console.log("✅ Table 'coupons' created");
+  console.log("✅ Table 'coupons' created");
 
-    // جدول العملاء المخصصين للكوبون
-    await query(`
+  // جدول العملاء المخصصين للكوبون
+  await query(`
     CREATE TABLE IF NOT EXISTS coupon_customers (
       id INT AUTO_INCREMENT PRIMARY KEY,
       coupon_id INT NOT NULL,
@@ -301,10 +284,10 @@ async function createCouponsTables() {
       FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'coupon_customers' created");
+  console.log("✅ Table 'coupon_customers' created");
 
-    // جدول المنتجات المخصصة للكوبون
-    await query(`
+  // جدول المنتجات المخصصة للكوبون
+  await query(`
     CREATE TABLE IF NOT EXISTS coupon_products (
       id INT AUTO_INCREMENT PRIMARY KEY,
       coupon_id INT NOT NULL,
@@ -313,10 +296,10 @@ async function createCouponsTables() {
       FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'coupon_products' created");
+  console.log("✅ Table 'coupon_products' created");
 
-    // جدول الكوبونات المطبقة على السلة
-    await query(`
+  // جدول الكوبونات المطبقة على السلة
+  await query(`
     CREATE TABLE IF NOT EXISTS cart_applied_coupons (
       id INT AUTO_INCREMENT PRIMARY KEY,
       cart_id INT NOT NULL,
@@ -330,12 +313,44 @@ async function createCouponsTables() {
       FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
   `);
-    console.log("✅ Table 'cart_applied_coupons' created");
+  console.log("✅ Table 'cart_applied_coupons' created");
+}
+
+async function createNotificationsTables() {
+
+  // جدول الإشعارات الرئيسي
+  await query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      body TEXT NOT NULL,
+      type VARCHAR(100) NOT NULL,
+      data JSON NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  console.log("✅ Table 'notifications' created");
+
+  // جدول ربط الإشعارات بالمستخدمين
+  await query(`
+    CREATE TABLE IF NOT EXISTS notification_users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      notification_id INT NOT NULL,
+      user_id INT NOT NULL,
+      is_read BOOLEAN DEFAULT FALSE,
+      read_at TIMESTAMP NULL,
+      FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+      INDEX idx_user_read (user_id, is_read),
+      INDEX idx_notification (notification_id)
+    )
+  `);
+  console.log("✅ Table 'notification_users' created");
 }
 
 async function createDebtsTables() {
-    // جدول ديون العملاء
-    await query(`
+  // جدول ديون العملاء
+  await query(`
     CREATE TABLE IF NOT EXISTS customer_debts (
       debt_id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,
@@ -351,17 +366,17 @@ async function createDebtsTables() {
       FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE SET NULL
     )
   `);
-    console.log("✅ Table 'customer_debts' created");
+  console.log("✅ Table 'customer_debts' created");
 }
 
 module.exports = {
-    createUsersTables,
-    createProductsTables,
-    createSettingsTables,
-    createCartTables,
-    createNotificationsTables,
-    createOrdersTables,
-    createReviewsAndFavoriteTables,
-    createCouponsTables,
-    createDebtsTables
+  createUsersTables,
+  createProductsTables,
+  createSettingsTables,
+  createCartTables,
+  createOrdersTables,
+  createNotificationsTables,
+  createReviewsAndFavoriteTables,
+  createCouponsTables,
+  createDebtsTables
 };

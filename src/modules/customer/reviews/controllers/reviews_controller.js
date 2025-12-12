@@ -11,20 +11,19 @@ const response = require('../../../../config/response_helper');
  */
 const addReview = async (req, res) => {
     try {
-        const { product_id, order_id, rating, comment } = req.body;
+        const { product_id, rating, comment } = req.body;
 
-        if (!product_id || !order_id || !rating) {
-            return response.badRequest(res, 'يرجى تحديد المنتج والطلب والتقييم');
+        if (!product_id || !rating) {
+            return response.badRequest(res, 'يرجى تحديد المنتج والتقييم');
         }
 
         const review = await reviewsService.addReview(req.user.user_id, {
             product_id,
-            order_id,
             rating,
             comment
         });
 
-        return response.created(res, review, 'تم إضافة التقييم بنجاح. سيتم مراجعته قريباً');
+        return response.created(res, review, 'تم إضافة التقييم بنجاح');
 
     } catch (error) {
         console.error('Add Review Error:', error);

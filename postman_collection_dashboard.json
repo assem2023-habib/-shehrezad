@@ -1768,7 +1768,7 @@
                     }
                 },
                 {
-                    "name": "Update Setting",
+                    "name": "Update Lock Timer (minutes)",
                     "request": {
                         "method": "PUT",
                         "header": [
@@ -1783,20 +1783,180 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"setting_key\": \"SUPPORT_STAFF_NUMBERS\",\n  \"setting_value\": \"[\\\"0123456789\\\", \\\"0987654321\\\"]\"\n}"
+                            "raw": "{\n    \"value\": \"15\"\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/dashboard/settings",
+                            "raw": "{{baseUrl}}/api/dashboard/settings/item_lock_minutes",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "dashboard",
-                                "settings"
+                                "settings",
+                                "item_lock_minutes"
                             ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Reminder Days",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"value\": \"20\"\n}"
                         },
-                        "description": "تحديث إعداد"
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings/cart_reminder_days",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings",
+                                "cart_reminder_days"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Max Cart Items",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"value\": \"100\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings/max_cart_items",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings",
+                                "max_cart_items"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Inquiry Staff Numbers",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"numbers\": [\n    \"+90XXXXXXXXXX\",\n    \"+963XXXXXXXXX\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings/inquiry-numbers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings",
+                                "inquiry-numbers"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Support Staff Numbers",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"numbers\": [\n    \"+90XXXXXXXXXX\",\n    \"+963XXXXXXXXX\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings/support-numbers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings",
+                                "support-numbers"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Bank Account",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bank_name\": \"Ziraat\",\n  \"account_holder\": \"الاسم الكامل\",\n  \"iban\": \"TRXXXXXXXXXXXXXXXXXXXX\",\n  \"account_number\": \"1234567890\",\n  \"branch\": \"Şube\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/settings/bank-account",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "settings",
+                                "bank-account"
+                            ]
+                        }
                     }
                 }
             ]
