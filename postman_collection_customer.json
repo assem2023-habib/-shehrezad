@@ -93,7 +93,7 @@
             ]
         },
         {
-            "name": "👤 Customer - Profile",
+            "name": "👤 Profile",
             "item": [
                 {
                     "name": "Get Profile",
@@ -660,6 +660,141 @@
             ]
         },
         {
+            "name": "🎫 Coupons",
+            "item": [
+                {
+                    "name": "Validate Coupon",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"SAVE20\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/coupons/validate",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "coupons",
+                                "validate"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Assigned Coupons",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/coupons/assigned",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "coupons",
+                                "assigned"
+                            ]
+                        },
+                        "description": "جلب جميع الكوبونات المسندة والصالحة للعميل"
+                    }
+                },
+                {
+                    "name": "Get Assigned Coupons",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/coupons/assigned",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "coupons",
+                                "assigned"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Product Coupons (for user)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/coupons/products?product_id=1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "coupons",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "product_id",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Cart Applicable Coupons",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/coupons/cart-applicable",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "coupons",
+                                "cart-applicable"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
             "name": "❤️ Favorites",
             "item": [
                 {
@@ -781,7 +916,7 @@
             ]
         },
         {
-            "name": "⭐ Reviews (Customer)",
+            "name": "⭐ Reviews",
             "item": [
                 {
                     "name": "Add Review",
@@ -887,7 +1022,7 @@
             ]
         },
         {
-            "name": "📞 Support (Public)",
+            "name": "📞 Support",
             "item": [
                 {
                     "name": "Get Support Numbers",
