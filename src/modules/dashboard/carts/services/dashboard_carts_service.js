@@ -5,7 +5,7 @@
 const pool = require('../../../../config/dbconnect');
 const { settingsService } = require('../../../../config/database');
 const { SETTING_KEYS, ORDER_STATUS, CART_STATUS } = require('../../../../config/constants');
-const notificationService = require('../../../services/notification_service');
+const notificationService = require('../../../../services/notification_service');
 
 /**
  * جلب جميع السلات الفعالة
