@@ -1,7 +1,6 @@
 const pool = require("../../../../config/dbconnect");
 const cloudinary = require("../../../../config/cloudinary");
 const { getAdmin } = require("../../../../firebase");
-
 /**
  * توليد كود منتج فريد
  * الصيغة: PRD-XXXXXX (حروف وأرقام عشوائية)
@@ -16,7 +15,7 @@ const generateProductCode = async (connection) => {
     for (let i = 0; i < 6; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    
+
     // التحقق من عدم التكرار
     const check = await connection.queryAsync(
       'SELECT product_id FROM products WHERE product_code = ?',
@@ -195,7 +194,7 @@ const addProduct = async (req, res) => {
       for (const file of files) {
         try {
           const uploadResult = await uploadImageToCloudinary(file, product_id);
-          
+
           await connection.queryAsync(
             "INSERT INTO product_images (product_id, image_url, public_id, is_main) VALUES (?, ?, ?, ?)",
             [product_id, uploadResult.secure_url, uploadResult.public_id, isFirst ? 1 : 0]
@@ -217,15 +216,14 @@ const addProduct = async (req, res) => {
 
     await connection.queryAsync("COMMIT");
 
-    const admin = await getAdmin();
-    admin.messaging().send({
-          notification: {
-            title: "منتج جديد!",
-            body: `تم إضافة المنتج "${product_name}" الآن 🎉`
-          },
-          topic: "all_users"
-        }).catch(err => console.error("FCM Error:", err));
-        
+    getAdmin.messaging().send({
+      notification: {
+        title: "منتج جديد!",
+        body: `تم إضافة المنتج "${product_name}" الآن 🎉`
+      },
+      topic: "all_users"
+    }).catch(err => console.error("FCM Error:", err));
+
     return res.status(200).json({
       status: 200,
       success: true,
@@ -233,7 +231,23 @@ const addProduct = async (req, res) => {
       product: productData
     });
 
-    
+    const admin = await getAdmin();
+    admin.messaging().send({
+      notification: {
+        title: "منتج جديد!",
+        body: `تم إضافة المنتج "${product_name}" الآن 🎉`
+      },
+      topic: "all_users"
+    }).catch(err => console.error("FCM Error:", err));
+
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "تمت إضافة المنتج بنجاح",
+      product: productData
+    });
+
+
 
   } catch (error) {
     if (connection) await connection.queryAsync("ROLLBACK");
