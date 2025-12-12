@@ -5,6 +5,7 @@
 const pool = require('../../../../config/dbconnect');
 const { settingsService } = require('../../../../config/database');
 const { SETTING_KEYS, ORDER_STATUS, CART_STATUS } = require('../../../../config/constants');
+const notificationService = require('../../../services/notification_service');
 
 /**
  * جلب جميع السلات الفعالة
@@ -200,7 +201,11 @@ const getCartDetails = async (cartId) => {
   const { customer_name, customer_phone, customer_email, customer_code, customer_invoice_image, ...cartData } = cart[0];
   
   const responseData = {
-    cart: { ...cartData, time_since_created: formatTimeSince(createdSeconds) },
+    cart: { 
+      ...cartData, 
+      time_since_created: formatTimeSince(createdSeconds),
+      time_since_created_seconds: createdSeconds
+    },
     customer: {
       user_id: cart[0].user_id,
       full_name: customer_name,
@@ -414,6 +419,45 @@ const confirmCartByCode = async (
 
   // جلب الرصيد الجديد
   const finalDebt = await debtsService.getCustomerDebtBalance(cart.user_id, currency);
+
+  // 12. إرسال إشعار للعميل
+  try {
+    // بناء نص الإشعار
+    let notificationBody = `تم تأكيد طلبك بنجاح! رقم الفاتورة: ${invoiceNumber}`;
+    notificationBody += `\nالمجموع: ${finalTotal} ${currency}`;
+    notificationBody += `\nالمدفوع: ${submittedPaid} ${currency}`;
+    
+    if (newDebtFromOrder > 0) {
+      notificationBody += `\nالدين الجديد: ${newDebtFromOrder} ${currency}`;
+    }
+    
+    if (finalDebt > 0) {
+      notificationBody += `\nإجمالي الدين المتبقي: ${finalDebt} ${currency}`;
+    } else {
+      notificationBody += `\nلا يوجد ديون متبقية ✓`;
+    }
+
+    await notificationService.sendToUsers({
+      title: 'تم تأكيد طلبك!',
+      body: notificationBody,
+      type: 'order_confirmed',
+      data: {
+        order_id: orderId,
+        invoice_number: invoiceNumber,
+        total_amount: finalTotal,
+        paid_amount: submittedPaid,
+        paid_to_current_order: paidToCurrentOrder,
+        new_debt: newDebtFromOrder,
+        remaining_debt: finalDebt,
+        currency
+      },
+      userIds: [cart.user_id]
+    });
+
+    console.log(`[CART] Sent order confirmation notification to user ${cart.user_id}`);
+  } catch (notifError) {
+    console.error('[CART] Notification Error:', notifError);
+  }
 
   return {
     order_id: orderId,

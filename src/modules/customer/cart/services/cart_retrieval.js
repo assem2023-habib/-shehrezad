@@ -91,6 +91,7 @@ const getCart = async (userId) => {
             status: cart[0].status,
             created_at: cart[0].created_at,
             updated_at: cart[0].updated_at,
+            time_since_created_seconds: Math.floor((Date.now() - new Date(cart[0].created_at).getTime()) / 1000),
             applied_coupons: appliedCartCoupons.map(r => r.code)
         },
         cart_code: cart[0].cart_code,

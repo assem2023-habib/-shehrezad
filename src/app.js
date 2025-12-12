@@ -45,6 +45,11 @@ app.use('/api/reviews', require('./modules/customer/reviews/routes/reviews_route
 // المفضلة - يتطلب توكن
 app.use('/api/favorites', require('./modules/customer/favorites/routes/favorites_routes'));
 
+// الطلبات - يتطلب توكن
+app.use('/api/customer/orders', require('./modules/customer/orders/routes/customer_orders_routes'));
+
+// الديون - يتطلب توكن
+app.use('/api/customer/debts', require('./modules/customer/debts/routes/customer_debts_routes'));
 
 // =====================
 // Dashboard Routes (لوحة التحكم)

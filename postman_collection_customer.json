@@ -1211,6 +1211,236 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "📦 Orders",
+            "item": [
+                {
+                    "name": "Get My Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/orders",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "orders"
+                            ]
+                        },
+                        "description": "جلب جميع طلبات العميل"
+                    }
+                },
+                {
+                    "name": "Get My Orders with Pagination",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/orders?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "orders"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "description": "جلب الطلبات مع Pagination"
+                    }
+                },
+                {
+                    "name": "Filter Orders by Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/orders?status=unpaid",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "orders"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "unpaid",
+                                    "description": "Options: unpaid, paid, pending, processing, shipped, completed, cancelled"
+                                }
+                            ]
+                        },
+                        "description": "تصفية الطلبات حسب الحالة"
+                    }
+                },
+                {
+                    "name": "Search Orders by Invoice Number",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/orders?search=INV-20251212",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "orders"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "INV-20251212"
+                                }
+                            ]
+                        },
+                        "description": "البحث عن الطلبات برقم الفاتورة"
+                    }
+                },
+                {
+                    "name": "Get Order Details by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/orders/26",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "orders",
+                                "26"
+                            ]
+                        },
+                        "description": "جلب تفاصيل طلب محدد مع العناصر"
+                    }
+                }
+            ]
+        }
+        ,
+        {
+            "name": "��� Debts",
+            "item": [
+                {
+                    "name": "Get Debts Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/debts/summary",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "debts",
+                                "summary"
+                            ]
+                        },
+                        "description": "جلب ملخص ديون العميل"
+                    }
+                },
+                {
+                    "name": "Get Debts History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/debts/history",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "debts",
+                                "history"
+                            ]
+                        },
+                        "description": "جلب سجل ديون العميل"
+                    }
+                },
+                {
+                    "name": "Get Debt Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{customerToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/customer/debts/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "customer",
+                                "debts",
+                                "1"
+                            ]
+                        },
+                        "description": "جلب تفاصيل دين محدد"
+                    }
+                }
+            ]
         }
     ]
 }
