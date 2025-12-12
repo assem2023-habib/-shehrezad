@@ -17,7 +17,7 @@ function escapeHtml(text) {
 }
 
 async function readLogoData() {
-  const logoPath = path.join(__dirname, '../templates/assets/logo.jpg');
+  const logoPath = path.join(__dirname, '../../templates/assets/logo.jpg');
   try {
     const b = fs.readFileSync(logoPath);
     const ext = path.extname(logoPath).replace('.', '') || 'png';
@@ -126,7 +126,7 @@ async function generateItemsRows(items) {
 
 async function generateInvoicePDF(orderId) {
   const order = await getOrderFromDB(orderId);
-  const templatePath = path.join(__dirname, '../templates/invoice_template.html');
+  const templatePath = path.join(__dirname, '../../templates/invoice_template.html');
   let html = fs.readFileSync(templatePath, 'utf8');
 
   const logoData = await readLogoData();

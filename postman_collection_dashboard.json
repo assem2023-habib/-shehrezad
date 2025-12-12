@@ -1336,6 +1336,166 @@
                     }
                 },
                 {
+                    "name": "Create Coupon (Fixed Amount)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"FIXED50\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 50,\n    \"min_purchase_amount\": 200\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "كوبون خصم ثابت 50"
+                    }
+                },
+                {
+                    "name": "Create Coupon (Percentage)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"PERCENT15\",\n    \"discount_type\": \"percentage\",\n    \"discount_value\": 15,\n    \"max_discount_amount\": 100,\n    \"min_purchase_amount\": 50\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "كوبون خصم 15% بحد أقصى 100"
+                    }
+                },
+                {
+                    "name": "Create Coupon (Specific Users)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"VIPUSER\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 100,\n    \"target_audience\": \"specific_users\",\n    \"customer_ids\": [1, 2]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "كوبون مخصص لمستخدمين محددين (IDs: 1, 2)"
+                    }
+                },
+                {
+                    "name": "Create Coupon (Specific Products)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"PRODSALE\",\n    \"discount_type\": \"percentage\",\n    \"discount_value\": 25,\n    \"target_products_type\": \"specific_products\",\n    \"product_ids\": [1, 2]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "كوبون مخصص لمنتجات محددة (IDs: 1, 2)"
+                    }
+                },
+                {
+                    "name": "Create Coupon (With Limits & Expiry)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"code\": \"LIMITED2024\",\n    \"discount_type\": \"fixed\",\n    \"discount_value\": 30,\n    \"usage_limit\": 50,\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-12-31\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/dashboard/coupons",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "coupons"
+                            ]
+                        },
+                        "description": "كوبون مع حد استخدام وتاريخ انتهاء"
+                    }
+                },
+                {
                     "name": "Create Coupon",
                     "request": {
                         "method": "POST",
